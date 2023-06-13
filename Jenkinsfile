@@ -23,12 +23,12 @@ pipeline {
                     stages {
                         stage("Run mypy") {
                             steps {
-                                sh "python -m mypy it tests"
+                                sh "python -m mypy league_push_ups tests"
                             }
                         }
                         stage("Run pylint") {
                             steps {
-                                sh "python -m pylint it tests"
+                                sh "python -m pylint league_push_ups tests"
                             }
                         }
                         stage("Run pytest") {
