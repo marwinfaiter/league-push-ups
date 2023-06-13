@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from league_push_ups.models.end_of_game.stats import Stats
+from .stats import Stats
 
 @dataclass(frozen=True, slots=True)
 class Player:

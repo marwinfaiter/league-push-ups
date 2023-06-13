@@ -3,65 +3,74 @@ from typing import Optional
 
 from lcu_driver import Connector
 from discord import SyncWebhook
-from league_push_ups.models.game_update import GameUpdate
-from league_push_ups.models.game_update.game_state import GameState
 
-from league_push_ups.models.lobby import Lobby
-from league_push_ups.models.lobby.member import Member
-from league_push_ups.models.end_of_game.team import Team
+from .models.game_update import GameUpdate
+from .models.game_update.game_state import GameState
+from .models.lobby import Lobby
+from .models.lobby.member import Member
+from .models.end_of_game.team import Team
 
-DEFAULT_DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1117565515079110716/tE1lZUeXyVVNVXpYW6dUzgrCoUJKUxNWuhLA1J6-G5YGOeUs3hBi1t4bsP5xXFH3kst4"
+DEFAULT_DISCORD_WEBHOOK = (
+    "https://discord.com/api/webhooks/"
+    "1117565515079110716/"
+    "tE1lZUeXyVVNVXpYW6dUzgrCoUJKUxNWuhLA1J6-G5YGOeUs3hBi1t4bsP5xXFH3kst4"
+)
 
 connector = Connector()
 
 class LeaguePushUps:
-    min: int = None
-    max: int = None
-    webhook: Optional[SyncWebhook]  = None
+    min: int
+    max: int
+    webhook: SyncWebhook
     lobby: Optional[Lobby] = None
     game_id: Optional[int] = None
 
     @staticmethod
-    def init(webhook_url=None, push_up_min=10, push_up_max=50):
+    def init(webhook_url, push_up_min, push_up_max):
         LeaguePushUps.min = push_up_min
         LeaguePushUps.max = push_up_max
-        LeaguePushUps.webhook = SyncWebhook.from_url(webhook_url) if webhook_url else None
+        LeaguePushUps.webhook = SyncWebhook.from_url(webhook_url)
 
     # fired when LCU API is ready to be used
     @staticmethod
     @connector.ready
-    async def connect(connection):
+    async def connect(_):
         print('LCU API is ready to be used.')
 
     # fired when League Client is closed (or disconnected from websocket)
     @staticmethod
     @connector.close
-    async def disconnect(connection):
+    async def disconnect(_):
         print('The client have been closed!')
         await connector.stop()
 
     @staticmethod
     @connector.ws.register("/lol-lobby/v2/lobby", event_types=("CREATE","UPDATE"))
-    async def lobby_create(connection, event):
+    async def lobby_create(_, event):
         LeaguePushUps.lobby = Lobby.from_json(event.data)
-        print(f"Lobby {event.type}: {LeaguePushUps.lobby.game_config.game_mode.value}")
+        if LeaguePushUps.lobby:
+            print(f"Lobby {event.type}: {LeaguePushUps.lobby.game_config.game_mode.value}")
 
     @staticmethod
     @connector.ws.register("/lol-lobby/v2/lobby/members", event_types=("UPDATE",))
-    async def lobby_members_update(connection, event):
-        print("Updating lobby members")
-        LeaguePushUps.lobby.members = [Member.from_json(member) for member in event.data]
+    async def lobby_members_update(_, event):
+        if LeaguePushUps.lobby:
+            print("Updating lobby members")
+            LeaguePushUps.lobby.members = [Member.from_json(member) for member in event.data]
 
     @staticmethod
     @connector.ws.register("/lol-lobby/v2/lobby", event_types=("DELETE",))
-    async def lobby_delete(connection, event):
+    async def lobby_delete(*_args):
         if not LeaguePushUps.game_id:
             print("Deleting lobby")
             LeaguePushUps.lobby = None
 
     @staticmethod
-    @connector.ws.register("/riot-messaging-service/v1/message/lol-platform/v1/gsm/game-update", event_types=("CREATE",))
-    async def game_start(connection, event):
+    @connector.ws.register(
+        "/riot-messaging-service/v1/message/lol-platform/v1/gsm/game-update",
+        event_types=("CREATE",)
+    )
+    async def game_start(_, event):
         game_update = GameUpdate.from_json(event.data)
         if game_update.payload.game_state == GameState.START_REQUESTED:
             print("Game starting")
@@ -76,14 +85,33 @@ class LeaguePushUps:
 
     @staticmethod
     @connector.ws.register('/lol-end-of-game/v1/eog-stats-block', event_types=('CREATE',))
-    async def game_end(connection, event):
-        for team in [Team.from_json(team) for team in event.data["teams"]]:
-            for player in team.players:
-                if LeaguePushUps.lobby.is_summoner_member(player.summoner_name):
-                    kill_participation = ((player.stats.kills + player.stats.assists) / team.stats.kills) if team.stats.kills else 1
-                    push_ups = round(min(LeaguePushUps.min + (LeaguePushUps.max/2) / (player.stats.kda * kill_participation), LeaguePushUps.max)) if kill_participation != 0 else 50
-                    if LeaguePushUps.webhook:
-                        LeaguePushUps.webhook.send(f"{player.summoner_name} kill participation: {kill_participation * 100:.2f}%, kda: {player.stats.kda:.2f}, push ups: {push_ups}")
+    async def game_end(_, event):
+        if LeaguePushUps.lobby:
+            for team in [Team.from_json(team) for team in event.data["teams"]]:
+                for player in team.players:
+                    if LeaguePushUps.lobby.is_summoner_member(player.summoner_name):
+                        if team.stats.kills:
+                            kill_participation = (player.stats.kills + player.stats.assists) / team.stats.kills
+                        else:
+                            kill_participation = 1
+
+                        if kill_participation == 0:
+                            push_ups = 50
+                        else:
+                            push_ups = round(
+                                min(
+                                    LeaguePushUps.min + (LeaguePushUps.max/2) / (player.stats.kda * kill_participation),
+                                    LeaguePushUps.max
+                                )
+                            )
+
+                        if LeaguePushUps.webhook:
+                            LeaguePushUps.webhook.send(
+                                f"{player.summoner_name} "
+                                f"kill participation: {kill_participation * 100:.2f}%"
+                                f", kda: {player.stats.kda:.2f}"
+                                f", push ups: {push_ups}"
+                            )
         LeaguePushUps.lobby = None
 
 def main():

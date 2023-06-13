@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from league_push_ups.models.end_of_game.player import Player
-from league_push_ups.models.end_of_game.stats import Stats
+from .player import Player
+from .stats import Stats
 
 @dataclass(frozen=True, slots=True)
 class Team:

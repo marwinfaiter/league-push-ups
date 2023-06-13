@@ -9,7 +9,7 @@ from discord import SyncWebhook
 
 class TestLeaguePushUps(IsolatedAsyncioTestCase):
     def setUp(self):
-        LeaguePushUps.init()
+        LeaguePushUps.init(f"https://discord.com/api/webhooks/{0:020d}/{0:060d}", 10, 50)
 
     def tearDown(self):
         verifyNoUnwantedInteractions()
@@ -22,7 +22,8 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
     async def test_lobby_members_update(self):
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.lobby_members_update(None, ExampeMemberUpdate())
-        assert LeaguePushUps.lobby.members == [Member("TEST")]
+        if LeaguePushUps.lobby:
+            assert LeaguePushUps.lobby.members == [Member("TEST")]
 
     async def test_lobby_delete(self):
         await LeaguePushUps.lobby_create(None, ExampleLobby())

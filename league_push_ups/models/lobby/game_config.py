@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from league_push_ups.models.lobby.game_mode import GameMode
+from .game_mode import GameMode
 
 @dataclass(frozen=True, slots=True)
 class GameConfig:

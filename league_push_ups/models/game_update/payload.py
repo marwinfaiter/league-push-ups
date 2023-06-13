@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from league_push_ups.models.game_update.game_state import GameState
-from league_push_ups.models.game_update.game_type import GameType
+from .game_state import GameState
+from .game_type import GameType
 
 @dataclass(frozen=True, slots=True)
 class Payload:

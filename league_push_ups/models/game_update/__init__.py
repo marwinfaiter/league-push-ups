@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 import json
 
-
-from league_push_ups.models.game_update.payload import Payload
+from .payload import Payload
 
 @dataclass(frozen=True, slots=True)
 class GameUpdate:

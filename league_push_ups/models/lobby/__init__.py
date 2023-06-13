@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import List
 
-from league_push_ups.models.lobby.member import Member
-from league_push_ups.models.lobby.game_config import GameConfig
-from league_push_ups.models.lobby.game_mode import GameMode
+from .member import Member
+from .game_config import GameConfig
+from .game_mode import GameMode
 
 @dataclass(slots=True)
 class Lobby:
