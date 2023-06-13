@@ -1,0 +1,6 @@
+from enum import Enum
+
+class GameState(Enum):
+    START_REQUESTED = "START_REQUESTED"
+    TERMINATED = "TERMINATED"
+    TERMINATED_IN_ERROR = "TERMINATED_IN_ERROR"
