@@ -32,7 +32,7 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
 
     async def test_game_end(self):
         LeaguePushUps.webhook = mock(spec=SyncWebhook)
-        expect(LeaguePushUps.webhook, times=1).send(ANY).thenReturn(True)
+        expect(LeaguePushUps.webhook, times=1).send(embeds=ANY).thenReturn(True)
 
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.game_end(None, ExampleGameEnd())

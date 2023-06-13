@@ -2,7 +2,7 @@ import argparse
 from typing import Optional
 
 from lcu_driver import Connector
-from discord import SyncWebhook
+from discord import Colour, SyncWebhook, Embed
 
 from .models.game_update import GameUpdate
 from .models.game_update.game_state import GameState
@@ -73,7 +73,7 @@ class LeaguePushUps:
     async def game_start(_, event):
         game_update = GameUpdate.from_json(event.data)
         if game_update.payload.game_state == GameState.START_REQUESTED:
-            print("Game starting")
+            print(f"Game starting: {game_update.payload.game_type.value}")
             LeaguePushUps.game_id = game_update.payload.id
         elif game_update.payload.game_state == GameState.TERMINATED:
             print("Game ended")
@@ -88,8 +88,10 @@ class LeaguePushUps:
     async def game_end(_, event):
         if LeaguePushUps.lobby:
             for team in [Team.from_json(team) for team in event.data["teams"]]:
+                embeds = []
                 for player in team.players:
                     if LeaguePushUps.lobby.is_summoner_member(player.summoner_name):
+                        embed = Embed(colour=Colour.green(), title=player.summoner_name)
                         if team.stats.kills:
                             kill_participation = (player.stats.kills + player.stats.assists) / team.stats.kills
                         else:
@@ -104,14 +106,12 @@ class LeaguePushUps:
                                     LeaguePushUps.max
                                 )
                             )
-
-                        if LeaguePushUps.webhook:
-                            LeaguePushUps.webhook.send(
-                                f"{player.summoner_name} "
-                                f"kill participation: {kill_participation * 100:.2f}%"
-                                f", kda: {player.stats.kda:.2f}"
-                                f", push ups: {push_ups}"
-                            )
+                        embed.add_field(name="Kill Participation", value=f"{kill_participation * 100:.2f}%")
+                        embed.add_field(name="KDA", value=f"{player.stats.kda:.2f}")
+                        embed.add_field(name="Push-ups", value=push_ups)
+                        embeds.append(embed)
+                if embeds:
+                    LeaguePushUps.webhook.send(embeds=embeds)
         LeaguePushUps.lobby = None
 
 def main():
