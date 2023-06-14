@@ -121,7 +121,8 @@ class LeaguePushUps:
                         embed.add_field(name="KDA", value=f"{player.stats.kda:.2f}")
                         embed.add_field(name="Push-ups", value=push_ups)
                         embeds.append(embed)
-                LeaguePushUps.webhook.send(embeds=embeds)
+                if embeds:
+                    LeaguePushUps.webhook.send(embeds=embeds)
         LeaguePushUps.lobby = None
 
 def main():
