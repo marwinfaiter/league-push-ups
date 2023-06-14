@@ -1,5 +1,6 @@
 import argparse
 from typing import Optional
+import time
 
 from lcu_driver import Connector
 from discord import Colour, SyncWebhook, Embed
@@ -8,7 +9,7 @@ from .models.game_update import GameUpdate
 from .models.game_update.game_state import GameState
 from .models.lobby import Lobby
 from .models.lobby.member import Member
-from .models.end_of_game.team import Team
+from .models.end_of_game.eog_stats_block import EOGStatsBlock
 
 DEFAULT_DISCORD_WEBHOOK = (
     "https://discord.com/api/webhooks/"
@@ -86,12 +87,32 @@ class LeaguePushUps:
     @staticmethod
     @connector.ws.register('/lol-end-of-game/v1/eog-stats-block', event_types=('CREATE',))
     async def game_end(_, event):
+        eog_stats_block = EOGStatsBlock.from_json(event.data)
         if LeaguePushUps.lobby:
-            for team in [Team.from_json(team) for team in event.data["teams"]]:
+            for team in eog_stats_block.teams:
                 embeds = []
                 for player in team.players:
                     if LeaguePushUps.lobby.is_summoner_member(player.summoner_name):
-                        embed = Embed(colour=Colour.green(), title=player.summoner_name)
+                        embed = Embed(
+                            colour=Colour.green(),
+                            title=player.summoner_name)
+                        embed.add_field(
+                            name="Surrender",
+                            value=eog_stats_block.game_ended_in_early_surrender,
+                            inline=False
+                        )
+                        embed.add_field(
+                            name="Game ID",
+                            value=eog_stats_block.game_id,
+                        )
+                        embed.add_field(
+                            name="Game Length",
+                            value=time.strftime('%H:%M:%S', time.gmtime(eog_stats_block.game_length)),
+                        )
+                        embed.add_field(
+                            name="Game Mode",
+                            value=eog_stats_block.game_mode.value,
+                        )
                         if team.stats.kills:
                             kill_participation = (player.stats.kills + player.stats.assists) / team.stats.kills
                         else:
@@ -106,6 +127,9 @@ class LeaguePushUps:
                                     LeaguePushUps.max
                                 )
                             )
+                        embed.add_field(name="Kills", value=player.stats.kills)
+                        embed.add_field(name="Deaths", value=player.stats.deaths)
+                        embed.add_field(name="Assists", value=player.stats.assists)
                         embed.add_field(name="Kill Participation", value=f"{kill_participation * 100:.2f}%")
                         embed.add_field(name="KDA", value=f"{player.stats.kda:.2f}")
                         embed.add_field(name="Push-ups", value=push_ups)

@@ -217,7 +217,7 @@ class ExampleGameEnd:
         "gameEndedInEarlySurrender": True,
         "gameId": 0,
         "gameLength": 0,
-        "gameMode": "string",
+        "gameMode": "ARAM",
         "gameMutators": [
             "string"
         ],
