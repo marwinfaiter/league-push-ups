@@ -10,7 +10,7 @@ setup(
     long_description='',
     keywords='LoL Push-ups',
     license='GNU General Public License v3 (GPLv3)',
-    packages=find_packages(include=["league_push_ups"]),
+    packages=find_packages(include=["league_push_ups.*"]),
     include_package_data=True,
     long_description_content_type='text/markdown',
     package_data={},
