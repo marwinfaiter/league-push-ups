@@ -93,26 +93,7 @@ class LeaguePushUps:
                 embeds = []
                 for player in team.players:
                     if LeaguePushUps.lobby.is_summoner_member(player.summoner_name):
-                        embed = Embed(
-                            colour=Colour.green(),
-                            title=player.summoner_name)
-                        embed.add_field(
-                            name="Surrender",
-                            value=eog_stats_block.game_ended_in_early_surrender,
-                            inline=False
-                        )
-                        embed.add_field(
-                            name="Game ID",
-                            value=eog_stats_block.game_id,
-                        )
-                        embed.add_field(
-                            name="Game Length",
-                            value=time.strftime('%H:%M:%S', time.gmtime(eog_stats_block.game_length)),
-                        )
-                        embed.add_field(
-                            name="Game Mode",
-                            value=eog_stats_block.game_mode.value,
-                        )
+                        embed = Embed(colour=Colour.green(), title=player.summoner_name)
                         if team.stats.kills:
                             kill_participation = (player.stats.kills + player.stats.assists) / team.stats.kills
                         else:
@@ -127,6 +108,9 @@ class LeaguePushUps:
                                     LeaguePushUps.max
                                 )
                             )
+                        embed.add_field(name="Game Mode", value=eog_stats_block.game_mode.value)
+                        embed.add_field(name="Game ID", value=eog_stats_block.game_id)
+                        embed.add_field(name="Game Length", value=time.strftime('%H:%M:%S', time.gmtime(eog_stats_block.game_length)))
                         embed.add_field(name="Kills", value=player.stats.kills)
                         embed.add_field(name="Deaths", value=player.stats.deaths)
                         embed.add_field(name="Assists", value=player.stats.assists)
@@ -134,8 +118,7 @@ class LeaguePushUps:
                         embed.add_field(name="KDA", value=f"{player.stats.kda:.2f}")
                         embed.add_field(name="Push-ups", value=push_ups)
                         embeds.append(embed)
-                if embeds:
-                    LeaguePushUps.webhook.send(embeds=embeds)
+                LeaguePushUps.webhook.send(embeds=embeds)
         LeaguePushUps.lobby = None
 
 def main():
