@@ -110,7 +110,10 @@ class LeaguePushUps:
                             )
                         embed.add_field(name="Game Mode", value=eog_stats_block.game_mode.value)
                         embed.add_field(name="Game ID", value=eog_stats_block.game_id)
-                        embed.add_field(name="Game Length", value=time.strftime('%H:%M:%S', time.gmtime(eog_stats_block.game_length)))
+                        embed.add_field(
+                            name="Game Length",
+                            value=time.strftime('%H:%M:%S', time.gmtime(eog_stats_block.game_length))
+                        )
                         embed.add_field(name="Kills", value=player.stats.kills)
                         embed.add_field(name="Deaths", value=player.stats.deaths)
                         embed.add_field(name="Assists", value=player.stats.assists)
