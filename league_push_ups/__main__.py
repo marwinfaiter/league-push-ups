@@ -68,7 +68,7 @@ class LeaguePushUps:
 
     @staticmethod
     @connector.ws.register(
-        "/riot-messaging-service/v1/message/lol-platform/v1/gsm/game-update",
+        "/riot-messaging-service/v1/message/lol-gsm-server/v1/gsm/game-update",
         event_types=("CREATE",)
     )
     async def game_start(_, event):
