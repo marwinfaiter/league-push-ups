@@ -48,6 +48,9 @@ setup(
         "discord",
         "lcu_driver",
         "requests",
+        "typed-argument-parser",
+        "attrs",
+        "cattrs",
     ],
     extras_require={
         "test": [

@@ -1,25 +1,14 @@
-from dataclasses import dataclass
+from attrs import define
 
-@dataclass(frozen=True, slots=True)
+@define(frozen=True)
 class Stats:
-    kills: int
-    deaths: int
-    assists: int
+    CHAMPIONS_KILLED: int
+    NUM_DEATHS: int
+    ASSISTS: int
 
     @property
     def kda(self):
-        if not self.deaths:
-            return self.kills + self.assists
+        if not self.NUM_DEATHS:
+            return self.CHAMPIONS_KILLED + self.ASSISTS
 
-        return (self.kills + self.assists) / self.deaths
-
-    @classmethod
-    def from_json(cls, json):
-        if not json:
-            return None
-
-        return cls(
-            json["CHAMPIONS_KILLED"],
-            json["NUM_DEATHS"],
-            json["ASSISTS"],
-        )
+        return (self.CHAMPIONS_KILLED + self.ASSISTS) / self.NUM_DEATHS

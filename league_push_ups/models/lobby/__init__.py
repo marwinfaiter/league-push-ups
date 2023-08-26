@@ -1,26 +1,12 @@
-from dataclasses import dataclass
-from typing import List
+from attrs import define
 
 from .member import Member
 from .game_config import GameConfig
-from .game_mode import GameMode
 
-@dataclass(slots=True)
+@define
 class Lobby:
-    members: List[Member]
-    game_config: GameConfig
+    members: list[Member]
+    gameConfig: GameConfig
 
     def is_summoner_member(self, summoner_name) -> bool:
-        return summoner_name in [member.summoner_name for member in self.members]
-
-    @classmethod
-    def from_json(cls, json):
-        lobby = cls(
-            members=[Member.from_json(member) for member in json["members"]],
-            game_config=GameConfig.from_json(json["gameConfig"])
-        )
-        if lobby.game_config.game_mode == GameMode.TFT:
-            print("Skipping game mode TFT")
-            return None
-
-        return lobby
+        return summoner_name in [member.summonerName for member in self.members]

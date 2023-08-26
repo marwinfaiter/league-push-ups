@@ -1,14 +1,7 @@
-from dataclasses import dataclass
+from attrs import define
 from .game_mode import GameMode
 
-@dataclass(frozen=True, slots=True)
+@define(frozen=True)
 class GameConfig:
-    game_mode: GameMode
-    is_custom: bool
-
-    @classmethod
-    def from_json(cls, json):
-        return cls(
-            GameMode(json["gameMode"]),
-            json["isCustom"]
-        )
+    gameMode: GameMode
+    isCustom: bool

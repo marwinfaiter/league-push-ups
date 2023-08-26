@@ -1,6 +1,7 @@
 from unittest import IsolatedAsyncioTestCase
 from mockito import expect, unstub, ANY, mock, verifyNoUnwantedInteractions
-from dataclasses import dataclass
+from attrs import define
+from cattrs import structure
 from league_push_ups.__main__ import LeaguePushUps
 from league_push_ups.models.lobby import Lobby
 from league_push_ups.models.lobby.member import Member
@@ -9,7 +10,11 @@ from discord import SyncWebhook
 
 class TestLeaguePushUps(IsolatedAsyncioTestCase):
     def setUp(self):
-        LeaguePushUps.init(f"https://discord.com/api/webhooks/{0:020d}/{0:060d}", 10, 50)
+        LeaguePushUps.webhook = SyncWebhook.from_url(f"https://discord.com/api/webhooks/{0:020d}/{0:060d}")
+        LeaguePushUps.min = 10
+        LeaguePushUps.max = 50
+        LeaguePushUps.game_id = None
+        LeaguePushUps.lobby = None
 
     def tearDown(self):
         verifyNoUnwantedInteractions()
@@ -17,7 +22,7 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
 
     async def test_lobby_create(self):
         await LeaguePushUps.lobby_create(None, ExampleLobby())
-        assert LeaguePushUps.lobby == Lobby.from_json(ExampleLobby.data)
+        assert LeaguePushUps.lobby == structure(ExampleLobby.data, Lobby)
 
     async def test_lobby_members_update(self):
         await LeaguePushUps.lobby_create(None, ExampleLobby())
@@ -30,14 +35,21 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
         await LeaguePushUps.lobby_delete(None, None)
         assert LeaguePushUps.lobby is None
 
+    async def test_game_start(self):
+        await LeaguePushUps.lobby_create(None, ExampleLobby())
+        await LeaguePushUps.game_update(None, ExampleGameStart())
+        assert LeaguePushUps.game_id is not None
+
     async def test_game_end(self):
         LeaguePushUps.webhook = mock(spec=SyncWebhook)
         expect(LeaguePushUps.webhook, times=1).send(embeds=ANY).thenReturn(True)
 
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.game_end(None, ExampleGameEnd())
+        await LeaguePushUps.game_update(None, ExampleGameEndUpdate())
+        assert LeaguePushUps.game_id is None
 
-@dataclass
+@define
 class ExampeMemberUpdate:
     data = [{
         "allowedChangeActivity": True,
@@ -70,7 +82,7 @@ class ExampeMemberUpdate:
         "teamId": 0
     }]
 
-@dataclass
+@define
 class ExampleLobby:
     type = GameMode.ARAM
     data = {
@@ -191,7 +203,21 @@ class ExampleLobby:
         "warnings": []
     }
 
-@dataclass
+@define
+class ExampleGameEndUpdate:
+    data = {
+        "payload": "{\"id\":6568491591,\"gameState\":\"TERMINATED\",\"gameType\":\"\"}",
+        "timestamp": 1693078946955,
+    }
+
+@define
+class ExampleGameStart:
+    data = {
+        "payload": "{\"id\":6568491591,\"gameState\":\"START_REQUESTED\",\"gameType\":\"PRACTICE_GAME\"}",
+        "timestamp": 1693078946955,
+    }
+
+@define
 class ExampleGameEnd:
     data = {
         "accountId": 0,

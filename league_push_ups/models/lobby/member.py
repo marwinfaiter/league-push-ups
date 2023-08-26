@@ -1,9 +1,5 @@
-from dataclasses import dataclass
+from attrs import define
 
-@dataclass(frozen=True, slots=True)
+@define(frozen=True)
 class Member:
-    summoner_name: str
-
-    @classmethod
-    def from_json(cls, json):
-        return cls(json["summonerName"])
+    summonerName: str
