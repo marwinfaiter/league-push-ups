@@ -9,38 +9,38 @@ from league_push_ups.models.lobby.game_mode import GameMode
 from discord import SyncWebhook
 
 class TestLeaguePushUps(IsolatedAsyncioTestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         LeaguePushUps.webhook = SyncWebhook.from_url(f"https://discord.com/api/webhooks/{0:020d}/{0:060d}")
         LeaguePushUps.min = 10
         LeaguePushUps.max = 50
         LeaguePushUps.game_id = None
         LeaguePushUps.lobby = None
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         verifyNoUnwantedInteractions()
         unstub()
 
-    async def test_lobby_create(self):
+    async def test_lobby_create(self) -> None:
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         assert LeaguePushUps.lobby == structure(ExampleLobby.data, Lobby)
 
-    async def test_lobby_members_update(self):
+    async def test_lobby_members_update(self) -> None:
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.lobby_members_update(None, ExampeMemberUpdate())
         if LeaguePushUps.lobby:
             assert LeaguePushUps.lobby.members == [Member("TEST")]
 
-    async def test_lobby_delete(self):
+    async def test_lobby_delete(self) -> None:
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.lobby_delete(None, None)
         assert LeaguePushUps.lobby is None
 
-    async def test_game_start(self):
+    async def test_game_start(self) -> None:
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.game_update(None, ExampleGameStart())
         assert LeaguePushUps.game_id is not None
 
-    async def test_game_end(self):
+    async def test_game_end(self) -> None:
         LeaguePushUps.webhook = mock(spec=SyncWebhook)
         expect(LeaguePushUps.webhook, times=1).send(embeds=ANY).thenReturn(True)
 

@@ -7,7 +7,7 @@ class Stats:
     ASSISTS: int
 
     @property
-    def kda(self):
+    def kda(self) -> float:
         if not self.NUM_DEATHS:
             return self.CHAMPIONS_KILLED + self.ASSISTS
 
