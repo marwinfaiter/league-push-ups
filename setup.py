@@ -58,7 +58,8 @@ setup(
             "mypy",
             "pytest",
             "pylint",
-            "mockito"
+            "mockito",
+            "types-requests",
         ]
     }
 )

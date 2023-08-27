@@ -31,7 +31,7 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.lobby_members_update(None, ExampeMemberUpdate())
         if LeaguePushUps.lobby:
-            assert LeaguePushUps.lobby.members == [Member("TEST")]
+            assert LeaguePushUps.lobby.members == [Member(27926438, "TEST")]
 
     async def test_lobby_delete(self) -> None:
         await LeaguePushUps.lobby_create(None, ExampleLobby())
@@ -50,6 +50,7 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
         await LeaguePushUps.game_end(None, ExampleGameEnd())
         await LeaguePushUps.game_update(None, ExampleGameEndUpdate())
         example_game_end = structure(ExampleGameEnd().data, EOGStatsBlock)
+        assert example_game_end.teams[0].stats is not None
         assert LeaguePushUps.matches == [
             Match(
                 example_game_end.teams[0].stats.CHAMPIONS_KILLED,

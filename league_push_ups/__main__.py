@@ -4,6 +4,7 @@ import json
 from cattrs import structure
 
 from lcu_driver import Connector
+from lcu_driver.connection import Connection
 from lcu_driver.events.responses import WebsocketEventResponse
 from discord import Colour, SyncWebhook, Embed
 
@@ -14,8 +15,8 @@ from .models.lobby.member import Member
 from .models.end_of_game.eog_stats_block import EOGStatsBlock
 from .models.cli_args import CLIArgs
 from .models.end_of_game.stats import Stats
-from .models.windows import Windows
 from .models.match import Match
+from .client.riot import RiotClient
 
 connector = Connector()
 
@@ -27,33 +28,27 @@ class LeaguePushUps:
     lobby: Optional[Lobby] = None
     game_id: Optional[int] = None
     matches: list[Match] = []
-    windows: Optional[Windows] = None
-
-    def __enter__(self):
-        self.start_gui()
-
-    def __exit__(self, *err):
-        pass
-
-    def start_gui(self) -> None:
-        LeaguePushUps.windows = Windows(self)
+    riot_client: RiotClient = RiotClient()
 
     # fired when LCU API is ready to be used
     @staticmethod
     @connector.ready # type: ignore[misc]
-    async def connect(_connector: Connector) -> None:
+    async def connect(connection: Connection) -> None:
+        summoner = await connection.request('get', '/lol-chat/v1/me')
+        summoner_json = await summoner.json()
+        LeaguePushUps.riot_client.region = summoner_json["platformId"].lower()
         print('LCU API is ready to be used.')
 
     # fired when League Client is closed (or disconnected from websocket)
     @staticmethod
     @connector.close # type: ignore[misc]
-    async def disconnect(_connector: Connector) -> None:
+    async def disconnect(_connection: Connection) -> None:
         print('The client have been closed!')
         await connector.stop()
 
     @staticmethod
     @connector.ws.register("/lol-lobby/v2/lobby", event_types=("CREATE","UPDATE")) # type: ignore[misc]
-    async def lobby_create(_connector: Connector, event: WebsocketEventResponse) -> None:
+    async def lobby_create(_connection: Connection, event: WebsocketEventResponse) -> None:
         LeaguePushUps.lobby = structure(event.data, Lobby)
         if LeaguePushUps.lobby:
             print(f"Lobby {event.type}: {LeaguePushUps.lobby.gameConfig.gameMode.value}")
@@ -67,7 +62,7 @@ class LeaguePushUps:
 
     @staticmethod
     @connector.ws.register("/lol-lobby/v2/lobby", event_types=("DELETE",)) # type: ignore[misc]
-    async def lobby_delete(_connector: Connector, _event: WebsocketEventResponse) -> None:
+    async def lobby_delete(_connection: Connection, _event: WebsocketEventResponse) -> None:
         if not LeaguePushUps.game_id:
             print("Deleting lobby")
             LeaguePushUps.lobby = None
@@ -77,7 +72,7 @@ class LeaguePushUps:
         "/riot-messaging-service/v1/message/lol-gsm-server/v1/gsm/game-update",
         event_types=("CREATE",)
     ) # type: ignore[misc]
-    async def game_update(_connector: Connector, event: WebsocketEventResponse) -> None:
+    async def game_update(_connection: Connection, event: WebsocketEventResponse) -> None:
         event.data["payload"] = json.loads(event.data["payload"])
         game_update = structure(event.data, GameUpdate)
 
@@ -93,7 +88,7 @@ class LeaguePushUps:
 
     @staticmethod
     @connector.ws.register('/lol-end-of-game/v1/eog-stats-block', event_types=('CREATE',)) # type: ignore[misc]
-    async def game_end(_connector: Connector, event: WebsocketEventResponse) -> None:
+    async def game_end(_connection: Connection, event: WebsocketEventResponse) -> None:
         if LeaguePushUps.lobby is None:
             return
 
@@ -132,8 +127,6 @@ class LeaguePushUps:
             LeaguePushUps.matches.append(match)
             if embeds:
                 LeaguePushUps.webhook.send(embeds=embeds)
-        if LeaguePushUps.windows:
-            LeaguePushUps.windows.switch_to_history_view()
 
     @staticmethod
     def calculate_push_ups(kill_participation: float, kda: float) -> int:
@@ -171,11 +164,7 @@ def main() -> None:
     else:
         print(f"Starting with arguments: {cli_args}")
         LeaguePushUps.webhook = SyncWebhook.from_url(cli_args.webhook_url)
-        try:
-            with LeaguePushUps() as _:
-                connector.start()
-        except RuntimeError as e:
-            print(e)
+        connector.start()
 
 
 if __name__ == "__main__":
