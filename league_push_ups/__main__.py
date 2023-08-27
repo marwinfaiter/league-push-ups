@@ -14,6 +14,8 @@ from .models.lobby.member import Member
 from .models.end_of_game.eog_stats_block import EOGStatsBlock
 from .models.cli_args import CLIArgs
 from .models.end_of_game.stats import Stats
+from .models.windows import Windows
+from .models.match import Match
 
 connector = Connector()
 
@@ -21,8 +23,20 @@ class LeaguePushUps:
     webhook: SyncWebhook
     min: int
     max: int
+    api_key: Optional[str] = None
     lobby: Optional[Lobby] = None
     game_id: Optional[int] = None
+    matches: list[Match] = []
+    windows: Optional[Windows] = None
+
+    def __enter__(self):
+        self.start_gui()
+
+    def __exit__(self, *err):
+        pass
+
+    def start_gui(self) -> None:
+        LeaguePushUps.windows = Windows(self)
 
     # fired when LCU API is ready to be used
     @staticmethod
@@ -88,9 +102,12 @@ class LeaguePushUps:
             if team.stats is None:
                 continue
 
+            match = Match(team.stats.CHAMPIONS_KILLED, [])
             embeds = []
             for player in team.players:
                 if LeaguePushUps.lobby.is_summoner_member(player.summonerName):
+                    match.players.append(player)
+
                     embed = Embed(colour=Colour.green(), title=player.summonerName)
                     embed.add_field(name="Game Mode", value=eog_stats_block.gameMode.value)
                     embed.add_field(name="Game ID", value=eog_stats_block.gameId)
@@ -112,8 +129,11 @@ class LeaguePushUps:
                     embed.add_field(name="KDA", value=f"{player.stats.kda:.2f}")
                     embed.add_field(name="Push-ups", value=push_ups)
                     embeds.append(embed)
+            LeaguePushUps.matches.append(match)
             if embeds:
                 LeaguePushUps.webhook.send(embeds=embeds)
+        if LeaguePushUps.windows:
+            LeaguePushUps.windows.switch_to_history_view()
 
     @staticmethod
     def calculate_push_ups(kill_participation: float, kda: float) -> int:
@@ -151,8 +171,11 @@ def main() -> None:
     else:
         print(f"Starting with arguments: {cli_args}")
         LeaguePushUps.webhook = SyncWebhook.from_url(cli_args.webhook_url)
-        connector.start()
-        league_push_ups = LeaguePushUps()
+        try:
+            with LeaguePushUps() as _:
+                connector.start()
+        except RuntimeError as e:
+            print(e)
 
 
 if __name__ == "__main__":

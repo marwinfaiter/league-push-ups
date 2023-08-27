@@ -3,9 +3,12 @@ from mockito import expect, unstub, ANY, mock, verifyNoUnwantedInteractions
 from attrs import define
 from cattrs import structure
 from league_push_ups.__main__ import LeaguePushUps
+from league_push_ups.models.end_of_game.eog_stats_block import EOGStatsBlock
+from league_push_ups.models.end_of_game.player import Player
 from league_push_ups.models.lobby import Lobby
 from league_push_ups.models.lobby.member import Member
 from league_push_ups.models.lobby.game_mode import GameMode
+from league_push_ups.models.match import Match
 from discord import SyncWebhook
 
 class TestLeaguePushUps(IsolatedAsyncioTestCase):
@@ -43,10 +46,19 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
     async def test_game_end(self) -> None:
         LeaguePushUps.webhook = mock(spec=SyncWebhook)
         expect(LeaguePushUps.webhook, times=1).send(embeds=ANY).thenReturn(True)
-
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.game_end(None, ExampleGameEnd())
         await LeaguePushUps.game_update(None, ExampleGameEndUpdate())
+        example_game_end = structure(ExampleGameEnd().data, EOGStatsBlock)
+        assert LeaguePushUps.matches == [
+            Match(
+                example_game_end.teams[0].stats.CHAMPIONS_KILLED,
+                [
+                    Player(player.summonerName, player.teamId, player.stats)
+                    for player in example_game_end.teams[0].players
+                ]
+            )
+        ]
         assert LeaguePushUps.game_id is None
 
 @define

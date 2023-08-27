@@ -51,6 +51,7 @@ setup(
         "typed-argument-parser",
         "attrs",
         "cattrs",
+        "pysimplegui",
     ],
     extras_require={
         "test": [
