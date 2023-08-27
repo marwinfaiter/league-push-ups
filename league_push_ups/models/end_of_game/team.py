@@ -1,5 +1,5 @@
 from attrs import define
-from typing import List
+from typing import Optional
 
 from .player import Player
 from .stats import Stats
@@ -7,5 +7,5 @@ from .stats import Stats
 @define(frozen=True)
 class Team:
     teamId: int
-    players: List[Player]
-    stats: Stats
+    players: list[Player]
+    stats: Optional[Stats]

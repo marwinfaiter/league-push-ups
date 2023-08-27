@@ -13,6 +13,7 @@ from .models.lobby import Lobby
 from .models.lobby.member import Member
 from .models.end_of_game.eog_stats_block import EOGStatsBlock
 from .models.cli_args import CLIArgs
+from .models.end_of_game.stats import Stats
 
 connector = Connector()
 
@@ -75,61 +76,84 @@ class LeaguePushUps:
         elif game_update.payload.gameState == GameState.TERMINATED_IN_ERROR:
             print("Game exited early")
             LeaguePushUps.game_id = None
-            LeaguePushUps.lobby = None
 
     @staticmethod
     @connector.ws.register('/lol-end-of-game/v1/eog-stats-block', event_types=('CREATE',)) # type: ignore[misc]
     async def game_end(_connector: Connector, event: WebsocketEventResponse) -> None:
-        eog_stats_block = structure(event.data, EOGStatsBlock)
-        if LeaguePushUps.lobby:
-            for team in eog_stats_block.teams:
-                embeds = []
-                for player in team.players:
-                    if LeaguePushUps.lobby.is_summoner_member(player.summonerName):
-                        embed = Embed(colour=Colour.green(), title=player.summonerName)
-                        if team.stats.CHAMPIONS_KILLED:
-                            kill_participation = (player.stats.CHAMPIONS_KILLED + player.stats.ASSISTS) \
-                                / team.stats.CHAMPIONS_KILLED
-                        else:
-                            kill_participation = 1
+        if LeaguePushUps.lobby is None:
+            return
 
-                        if any([
-                            kill_participation == 0,
-                            sum([player.stats.CHAMPIONS_KILLED, player.stats.ASSISTS, player.stats.NUM_DEATHS]) == 0,
-                        ]):
-                            push_ups = 50
-                        else:
-                            push_ups = round(
-                                min(
-                                    LeaguePushUps.min + \
-                                        (LeaguePushUps.max/2) / (player.stats.kda * kill_participation),
-                                    LeaguePushUps.max
-                                )
-                            )
-                        embed.add_field(name="Game Mode", value=eog_stats_block.gameMode.value)
-                        embed.add_field(name="Game ID", value=eog_stats_block.gameId)
-                        embed.add_field(
-                            name="Game Length",
-                            value=time.strftime('%H:%M:%S', time.gmtime(eog_stats_block.gameLength))
-                        )
-                        embed.add_field(name="Kills", value=player.stats.CHAMPIONS_KILLED)
-                        embed.add_field(name="Deaths", value=player.stats.NUM_DEATHS)
-                        embed.add_field(name="Assists", value=player.stats.ASSISTS)
-                        embed.add_field(name="Kill Participation", value=f"{kill_participation * 100:.2f}%")
-                        embed.add_field(name="KDA", value=f"{player.stats.kda:.2f}")
-                        embed.add_field(name="Push-ups", value=push_ups)
-                        embeds.append(embed)
-                if embeds:
-                    LeaguePushUps.webhook.send(embeds=embeds)
-        LeaguePushUps.lobby = None
+        eog_stats_block = structure(event.data, EOGStatsBlock)
+        for team in eog_stats_block.teams:
+            if team.stats is None:
+                continue
+
+            embeds = []
+            for player in team.players:
+                if LeaguePushUps.lobby.is_summoner_member(player.summonerName):
+                    embed = Embed(colour=Colour.green(), title=player.summonerName)
+                    embed.add_field(name="Game Mode", value=eog_stats_block.gameMode.value)
+                    embed.add_field(name="Game ID", value=eog_stats_block.gameId)
+                    embed.add_field(
+                        name="Game Length",
+                        value=time.strftime('%H:%M:%S', time.gmtime(eog_stats_block.gameLength))
+                    )
+                    embed.add_field(name="Kills", value=player.stats.CHAMPIONS_KILLED)
+                    embed.add_field(name="Deaths", value=player.stats.NUM_DEATHS)
+                    embed.add_field(name="Assists", value=player.stats.ASSISTS)
+
+                    kill_participation = LeaguePushUps.calculate_kill_participation(
+                        player.stats,
+                        team.stats.CHAMPIONS_KILLED
+                    )
+                    push_ups = LeaguePushUps.calculate_push_ups(kill_participation, player.stats.kda)
+
+                    embed.add_field(name="Kill Participation", value=f"{kill_participation * 100:.2f}%")
+                    embed.add_field(name="KDA", value=f"{player.stats.kda:.2f}")
+                    embed.add_field(name="Push-ups", value=push_ups)
+                    embeds.append(embed)
+            if embeds:
+                LeaguePushUps.webhook.send(embeds=embeds)
+
+    @staticmethod
+    def calculate_push_ups(kill_participation: float, kda: float) -> int:
+        if kill_participation == 0 or kda == 0:
+            return LeaguePushUps.max
+
+        return round(
+            min(
+                LeaguePushUps.min + \
+                    (LeaguePushUps.max/2) / (kda * kill_participation),
+                LeaguePushUps.max
+            )
+        )
+
+    @staticmethod
+    def calculate_kill_participation(stats: Stats, team_kills: int) -> float:
+        if team_kills:
+            return (stats.CHAMPIONS_KILLED + stats.ASSISTS) / team_kills
+
+        return 1
+
 
 def main() -> None:
     cli_args = CLIArgs().parse_args()
-    print(f"Starting with arguments: {cli_args}")
-    LeaguePushUps.webhook = SyncWebhook.from_url(cli_args.webhook_url)
     LeaguePushUps.min = cli_args.min
     LeaguePushUps.max = cli_args.max
-    connector.start()
+    if cli_args.action == "calculate": # type: ignore[attr-defined] # pylint: disable=no-member
+        stats = Stats(cli_args.kills, cli_args.deaths, cli_args.assists) # type: ignore[attr-defined] # pylint: disable=no-member
+        print(
+            LeaguePushUps.calculate_push_ups(
+                LeaguePushUps.calculate_kill_participation(stats, cli_args.team_kills), # type: ignore[attr-defined] # pylint: disable=no-member
+                stats.kda
+            )
+        )
+    else:
+        print(f"Starting with arguments: {cli_args}")
+        LeaguePushUps.webhook = SyncWebhook.from_url(cli_args.webhook_url)
+        connector.start()
+        league_push_ups = LeaguePushUps()
+
 
 if __name__ == "__main__":
     main()
