@@ -22,7 +22,7 @@ pipeline {
             stages {
                 stage("Install dependencies") {
                     steps {
-                        sh "python -m pip install --user client[test]"
+                        sh "python -m pip install --user client/[test]"
                     }
                 }
                 stage("Run tests") {
@@ -46,7 +46,7 @@ pipeline {
                 }
                 stage("Build wheel") {
                     steps {
-                        sh "python setup.py bdist_wheel"
+                        sh "python setup.py bdist_wheel --dist-dir client/dist"
                     }
                 }
                 stage("Publish wheel") {
@@ -55,7 +55,7 @@ pipeline {
                     }
                     steps {
                         sh "python -m pip install --user twine"
-                        sh "python -m twine upload --repository-url https://nexus.buddaphest.se/repository/pypi-releases/ --u '${TWINE_CREDENTIALS_USR}' --p '${TWINE_CREDENTIALS_PSW}' dist/*"
+                        sh "python -m twine upload --repository-url https://nexus.buddaphest.se/repository/pypi-releases/ --u '${TWINE_CREDENTIALS_USR}' --p '${TWINE_CREDENTIALS_PSW}' client/dist/*"
                     }
                 }
             }
