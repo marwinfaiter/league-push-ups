@@ -3,6 +3,7 @@ from enum import Enum
 
 class EventName(Enum):
     GAME_START = "GameStart"
+    GAME_END = "GameEnd"
     MINIONS_SPAWNING = "MinionsSpawning"
     FIRST_BLOOD = "FirstBlood"
     FIRST_BRICK = "FirstBrick"

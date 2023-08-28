@@ -101,9 +101,7 @@ class LeaguePushUps:
                 await asyncio.sleep(1)
                 events = LeaguePushUps.game_client.get_events()
                 new_events = events - LeaguePushUps.events
-                if new_events:
-                    print(new_events)
-                    LeaguePushUps.events = LeaguePushUps.events | new_events
+                LeaguePushUps.events = LeaguePushUps.events | new_events
             except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
                 pass
         print("Stopped polling live game")

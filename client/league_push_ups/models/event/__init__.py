@@ -14,6 +14,8 @@ class Event:
         match self.EventName:
             case EventName.GAME_START:
                 return GameStart
+            case EventName.GAME_END:
+                return GameEnd
             case EventName.MINIONS_SPAWNING:
                 return MinionsSpawning
             case EventName.FIRST_BLOOD:
@@ -107,3 +109,7 @@ class Multikill(Event):
 class Ace(Event):
     Acer: str
     AcingTeam: str
+
+@frozen
+class GameEnd(Event):
+    ...
