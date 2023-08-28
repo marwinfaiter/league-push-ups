@@ -2,6 +2,8 @@ from typing import Optional
 import time
 import json
 from cattrs import structure
+import asyncio
+import requests.exceptions
 
 from lcu_driver import Connector
 from lcu_driver.connection import Connection
@@ -17,6 +19,8 @@ from .models.cli_args import CLIArgs
 from .models.end_of_game.stats import Stats
 from .models.match import Match
 from .client.riot import RiotClient
+from .client.game import GameClient
+from .models.event import Event
 
 connector = Connector()
 
@@ -28,7 +32,9 @@ class LeaguePushUps:
     lobby: Optional[Lobby] = None
     game_id: Optional[int] = None
     matches: list[Match] = []
+    events: set[Event] = set()
     riot_client: RiotClient = RiotClient()
+    game_client: GameClient = GameClient()
 
     # fired when LCU API is ready to be used
     @staticmethod
@@ -79,12 +85,28 @@ class LeaguePushUps:
         if game_update.payload.gameState == GameState.START_REQUESTED:
             print(f"Game starting: {game_update.payload.gameType.value}")
             LeaguePushUps.game_id = game_update.payload.id
+            connector.loop.create_task(LeaguePushUps.poll_game_events())
         elif game_update.payload.gameState == GameState.TERMINATED:
             print("Game ended")
             LeaguePushUps.game_id = None
         elif game_update.payload.gameState == GameState.TERMINATED_IN_ERROR:
             print("Game exited early")
             LeaguePushUps.game_id = None
+
+    @staticmethod
+    async def poll_game_events():
+        print("Started polling live game")
+        while LeaguePushUps.game_id:
+            try:
+                await asyncio.sleep(1)
+                events = LeaguePushUps.game_client.get_events()
+                new_events = events - LeaguePushUps.events
+                if new_events:
+                    print(new_events)
+                    LeaguePushUps.events = LeaguePushUps.events | new_events
+            except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
+                pass
+        print("Stopped polling live game")
 
     @staticmethod
     @connector.ws.register('/lol-end-of-game/v1/eog-stats-block', event_types=('CREATE',)) # type: ignore[misc]
