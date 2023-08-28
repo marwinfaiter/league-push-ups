@@ -1,4 +1,5 @@
 from attrs import frozen
+from typing import Type
 
 from .event_name import EventName
 from .dragon_type import DragonType
@@ -9,7 +10,7 @@ class Event:
     EventName: EventName
     EventTime: float
 
-    def return_corrent_event_class(self):
+    def return_corrent_event_class(self) -> "Type[Event]":
         match self.EventName:
             case EventName.GAME_START:
                 return GameStart

@@ -94,7 +94,7 @@ class LeaguePushUps:
             LeaguePushUps.game_id = None
 
     @staticmethod
-    async def poll_game_events():
+    async def poll_game_events() -> None:
         print("Started polling live game")
         while LeaguePushUps.game_id:
             try:

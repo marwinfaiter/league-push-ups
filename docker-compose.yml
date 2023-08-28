@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  # frontend:
+  #   image: docker.buddaphest.se/marwinfaiter/league-push-ups-frontend
+  #   build:
+  #     context: ./frontend
+  #     target: develop-stage
+  #   ports:
+  #     - 80:8080
+  #   volumes:
+  #     - ./frontend:/app
+  #   command: /bin/sh -c "yarn serve"
+  backend:
+    image: docker.buddaphest.se/marwinfaiter/league-push-ups-backend
+    build:
+      context: ./backend
+      target: dev
+    ports:
+      - 5000:5000
+    volumes:
+      - ./backend:/src
+  database:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: league_push_ups
+      MYSQL_USER: league_push_ups
+      MYSQL_PASSWORD: league_push_ups
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mariadb:/var/lib/mysql
+
+volumes:
+  mariadb:

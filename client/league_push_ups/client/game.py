@@ -6,7 +6,7 @@ from typing import Any
 
 from ..models.event import Event
 
-requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning) # pylint: disable=no-member
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning) # type: ignore[attr-defined] # pylint: disable=no-member
 
 @define
 class GameClient:
@@ -16,7 +16,7 @@ class GameClient:
     def base_url(self) -> str:
         return "https://127.0.0.1:2999/liveclientdata"
 
-    def  get_events(self) -> dict[Any, Any]:
+    def  get_events(self) -> set[Event]:
         events_dict = self.get("eventdata")
         return {
             structure(
