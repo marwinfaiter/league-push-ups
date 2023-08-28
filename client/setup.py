@@ -46,6 +46,7 @@ setup(
         "discord",
         "lcu_driver",
         "typed-argument-parser",
+        "requests",
         "attrs",
         "cattrs",
     ],
