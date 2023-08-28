@@ -1,16 +1,14 @@
-import os
 from setuptools import setup, find_packages
+import os
 
-PKG = 'league-push-ups'
-######
 setup(
-    name=PKG,
+    name="league-push-ups",
     version=f"0.0.{os.environ.get('BUILD_ID', 1)}",
-    description='Simple pyplanet application to add random map game modes online',
+    description='Program thats monitors League of Legends games and sends it to a backend',
     long_description='',
     keywords='LoL Push-ups',
     license='GNU General Public License v3 (GPLv3)',
-    packages=find_packages(include=["league_push_ups", "league_push_ups.*"]),
+    packages=find_packages(exclude=["tests"]),
     include_package_data=True,
     long_description_content_type='text/markdown',
     package_data={},
@@ -47,11 +45,9 @@ setup(
     install_requires=[
         "discord",
         "lcu_driver",
-        "requests",
         "typed-argument-parser",
         "attrs",
         "cattrs",
-        "pysimplegui",
     ],
     extras_require={
         "test": [
