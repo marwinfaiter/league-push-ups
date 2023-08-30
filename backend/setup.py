@@ -10,6 +10,8 @@ setup(
         "flask",
         "flask_restful",
         "flask_cors",
+        "pymysql",
+        "peewee",
         "attrs",
         "cattrs",
     ],

@@ -5,7 +5,7 @@ from .game_config import GameConfig
 
 @define
 class Lobby:
-    members: list[Member]
+    members: tuple[Member]
     gameConfig: GameConfig
 
     def is_summoner_member(self, summoner_name: str) -> bool:

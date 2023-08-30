@@ -1,7 +1,8 @@
 FROM python:3.11-slim AS base
-ENV FLASK_APP=app
+ENV FLASK_APP=league_push_ups_backend.app
 RUN pip install Flask>=2 Werkzeug==2.1.2 Flask-RESTful flask-cors
-COPY . /src
+COPY league_push_ups_backend /src
+COPY setup.py /src/setup.py
 WORKDIR /src
 CMD ["python", "-m", "flask", "run", "--host", "0.0.0.0"]
 

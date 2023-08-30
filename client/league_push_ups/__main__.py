@@ -12,6 +12,7 @@ from discord import Colour, SyncWebhook, Embed
 
 from .models.game_update import GameUpdate
 from .models.game_update.game_state import GameState
+from .models.game_update.game_type import GameType
 from .models.lobby import Lobby
 from .models.lobby.member import Member
 from .models.end_of_game.eog_stats_block import EOGStatsBlock
@@ -20,7 +21,7 @@ from .models.end_of_game.stats import Stats
 from .models.match import Match
 from .client.riot import RiotClient
 from .client.game import GameClient
-from .models.event import Event
+from .client.backend import BackendClient
 
 connector = Connector()
 
@@ -28,11 +29,13 @@ class LeaguePushUps:
     webhook: SyncWebhook
     min: int
     max: int
+    backend_client: BackendClient
+    session_id: int
     api_key: Optional[str] = None
     lobby: Optional[Lobby] = None
     game_id: Optional[int] = None
     matches: list[Match] = []
-    events: set[Event] = set()
+    events: tuple[Event] = tuple()
     riot_client: RiotClient = RiotClient()
     game_client: GameClient = GameClient()
 
@@ -64,7 +67,7 @@ class LeaguePushUps:
     async def lobby_members_update(_: Connector, event: WebsocketEventResponse) -> None:
         if LeaguePushUps.lobby:
             print("Updating lobby members")
-            LeaguePushUps.lobby.members = [structure(member, Member) for member in event.data]
+            LeaguePushUps.lobby.members = tuple(structure(member, Member) for member in event.data)
 
     @staticmethod
     @connector.ws.register("/lol-lobby/v2/lobby", event_types=("DELETE",)) # type: ignore[misc]
@@ -84,7 +87,12 @@ class LeaguePushUps:
 
         if game_update.payload.gameState == GameState.START_REQUESTED:
             print(f"Game starting: {game_update.payload.gameType.value}")
+            if game_update.payload.gameType == GameType.PRACTICE_GAME:
+                print("Not registering PRACTICE_GAME")
+                return
+
             LeaguePushUps.game_id = game_update.payload.id
+            LeaguePushUps.backend_client.send_lobby(LeaguePushUps.lobby)
             connector.loop.create_task(LeaguePushUps.poll_game_events())
         elif game_update.payload.gameState == GameState.TERMINATED:
             print("Game ended")
@@ -101,7 +109,13 @@ class LeaguePushUps:
                 await asyncio.sleep(1)
                 events = LeaguePushUps.game_client.get_events()
                 new_events = events - LeaguePushUps.events
-                LeaguePushUps.events = LeaguePushUps.events | new_events
+                if new_events:
+                    LeaguePushUps.backend_client.send_events(
+                        LeaguePushUps.session_id,
+                        LeaguePushUps.game_id,
+                        new_events
+                    )
+                    LeaguePushUps.events = LeaguePushUps.events | new_events
             except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
                 pass
         print("Stopped polling live game")
@@ -120,31 +134,39 @@ class LeaguePushUps:
             match = Match(team.stats.CHAMPIONS_KILLED, [])
             embeds = []
             for player in team.players:
-                if LeaguePushUps.lobby.is_summoner_member(player.summonerName):
-                    match.players.append(player)
+                if not LeaguePushUps.lobby.is_summoner_member(player.summonerName):
+                    continue
 
-                    embed = Embed(colour=Colour.green(), title=player.summonerName)
-                    embed.add_field(name="Game Mode", value=eog_stats_block.gameMode.value)
-                    embed.add_field(name="Game ID", value=eog_stats_block.gameId)
-                    embed.add_field(
-                        name="Game Length",
-                        value=time.strftime('%H:%M:%S', time.gmtime(eog_stats_block.gameLength))
-                    )
-                    embed.add_field(name="Kills", value=player.stats.CHAMPIONS_KILLED)
-                    embed.add_field(name="Deaths", value=player.stats.NUM_DEATHS)
-                    embed.add_field(name="Assists", value=player.stats.ASSISTS)
+                match.players.append(player)
 
-                    kill_participation = LeaguePushUps.calculate_kill_participation(
-                        player.stats,
-                        team.stats.CHAMPIONS_KILLED
-                    )
-                    push_ups = LeaguePushUps.calculate_push_ups(kill_participation, player.stats.kda)
+                embed = Embed(colour=Colour.green(), title=player.summonerName)
+                embed.add_field(name="Game Mode", value=eog_stats_block.gameMode.value)
+                embed.add_field(name="Game ID", value=eog_stats_block.gameId)
+                embed.add_field(
+                    name="Game Length",
+                    value=time.strftime('%H:%M:%S', time.gmtime(eog_stats_block.gameLength))
+                )
+                embed.add_field(name="Kills", value=player.stats.CHAMPIONS_KILLED)
+                embed.add_field(name="Deaths", value=player.stats.NUM_DEATHS)
+                embed.add_field(name="Assists", value=player.stats.ASSISTS)
 
-                    embed.add_field(name="Kill Participation", value=f"{kill_participation * 100:.2f}%")
-                    embed.add_field(name="KDA", value=f"{player.stats.kda:.2f}")
-                    embed.add_field(name="Push-ups", value=push_ups)
-                    embeds.append(embed)
-            LeaguePushUps.matches.append(match)
+                kill_participation = LeaguePushUps.calculate_kill_participation(
+                    player.stats,
+                    team.stats.CHAMPIONS_KILLED
+                )
+                push_ups = LeaguePushUps.calculate_push_ups(kill_participation, player.stats.kda)
+
+                embed.add_field(name="Kill Participation", value=f"{kill_participation * 100:.2f}%")
+                embed.add_field(name="KDA", value=f"{player.stats.kda:.2f}")
+                embed.add_field(name="Push-ups", value=push_ups)
+                embeds.append(embed)
+            if match.players:
+                LeaguePushUps.matches.append(match)
+                LeaguePushUps.backend_client.send_match(
+                    LeaguePushUps.session_id,
+                    eog_stats_block.gameId,
+                    match
+                )
             if embeds:
                 LeaguePushUps.webhook.send(embeds=embeds)
 
@@ -184,6 +206,8 @@ def main() -> None:
     else:
         print(f"Starting with arguments: {cli_args}")
         LeaguePushUps.webhook = SyncWebhook.from_url(cli_args.webhook_url)
+        LeaguePushUps.backend_client = BackendClient("http://localhost:5000")
+        LeaguePushUps.session_id = LeaguePushUps.backend_client.get_session_id()
         connector.start()
 
 
