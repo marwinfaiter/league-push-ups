@@ -1,16 +1,16 @@
-from peewee import CharField, IntegerField, FloatField, ForeignKeyField, BooleanField
+from peewee import CharField, SmallIntegerField, FloatField, ForeignKeyField, BooleanField
 
 from .base_model import BaseModel
 from .match import Match
 
 class Event(BaseModel):
     Match = ForeignKeyField(Match, backref="events")
-    EventID = IntegerField()
+    EventID = SmallIntegerField()
     EventName = CharField(max_length=20)
     EventTime = FloatField()
     KillerName = CharField(null=True)
     VictimName = CharField(null=True)
-    KillStreak = IntegerField(null=True)
+    KillStreak = SmallIntegerField(null=True)
     Recipient = CharField(null=True)
     Stolen = BooleanField(null=True)
     TurretKilled = CharField(null=True)

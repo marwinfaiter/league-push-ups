@@ -22,6 +22,8 @@ from .models.match import Match
 from .client.riot import RiotClient
 from .client.game import GameClient
 from .client.backend import BackendClient
+from .models.event import Event
+from .models.event.event_name import EventName
 
 connector = Connector()
 
@@ -34,8 +36,7 @@ class LeaguePushUps:
     api_key: Optional[str] = None
     lobby: Optional[Lobby] = None
     game_id: Optional[int] = None
-    matches: list[Match] = []
-    events: tuple[Event] = tuple()
+    events: set[Event] = set()
     riot_client: RiotClient = RiotClient()
     game_client: GameClient = GameClient()
 
@@ -92,8 +93,12 @@ class LeaguePushUps:
                 return
 
             LeaguePushUps.game_id = game_update.payload.id
-            LeaguePushUps.backend_client.send_lobby(LeaguePushUps.lobby)
-            connector.loop.create_task(LeaguePushUps.poll_game_events())
+            LeaguePushUps.backend_client.send_lobby(
+                LeaguePushUps.session_id,
+                LeaguePushUps.game_id,
+                LeaguePushUps.lobby
+            )
+            connector.loop.create_task(LeaguePushUps.poll_game_data())
         elif game_update.payload.gameState == GameState.TERMINATED:
             print("Game ended")
             LeaguePushUps.game_id = None
@@ -102,7 +107,7 @@ class LeaguePushUps:
             LeaguePushUps.game_id = None
 
     @staticmethod
-    async def poll_game_events() -> None:
+    async def poll_game_data() -> None:
         print("Started polling live game")
         while LeaguePushUps.game_id:
             try:
@@ -116,6 +121,10 @@ class LeaguePushUps:
                         new_events
                     )
                     LeaguePushUps.events = LeaguePushUps.events | new_events
+                if any(event.EventName == EventName.CHAMPION_KILL for event in new_events):
+                    scores = LeaguePushUps.game_client.get_scores_for_team()
+                    LeaguePushUps.backend_client.send_scores(LeaguePushUps.session_id, LeaguePushUps.game_id, scores)
+
             except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
                 pass
         print("Stopped polling live game")
@@ -161,7 +170,6 @@ class LeaguePushUps:
                 embed.add_field(name="Push-ups", value=push_ups)
                 embeds.append(embed)
             if match.players:
-                LeaguePushUps.matches.append(match)
                 LeaguePushUps.backend_client.send_match(
                     LeaguePushUps.session_id,
                     eog_stats_block.gameId,

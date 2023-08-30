@@ -1,4 +1,4 @@
-from peewee import ForeignKeyField, IntegerField, DateTimeField
+from peewee import ForeignKeyField, SmallIntegerField, BigIntegerField, DateTimeField
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import os
@@ -8,12 +8,12 @@ from .session import Session
 
 class Match(BaseModel):
     Session = ForeignKeyField(Session, backref="matches")
-    MatchID = IntegerField()
+    MatchID = BigIntegerField()
     date_time = DateTimeField(
         default=lambda: datetime.now(ZoneInfo(os.environ.get("TZ", "Europe/Stockholm"))),
         verbose_name="create time"
     )
-    TeamKills = IntegerField(default=0)
+    TeamKills = SmallIntegerField(default=0)
 
     class Meta:
         indexes = (

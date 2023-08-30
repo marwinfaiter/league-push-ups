@@ -7,6 +7,7 @@ from typing import Any
 from ..models.event import Event
 from ..models.match import Match
 from ..models.lobby import Lobby
+from ..models.live_score import LiveScore
 
 @define
 class BackendClient:
@@ -31,6 +32,9 @@ class BackendClient:
 
     def send_lobby(self, session_id: int, game_id: int, lobby: Lobby) -> None:
         self.post(f"lobby/{session_id}/{game_id}", unstructure(lobby))
+
+    def send_scores(self, session_id: int, game_id: int, scores: tuple[LiveScore]) -> None:
+        self.post(f"scores/{session_id}/{game_id}", [unstructure(score) for score in scores])
 
     def get_session_id(self) -> int:
         response = self.get("session")

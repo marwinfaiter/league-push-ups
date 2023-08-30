@@ -1,4 +1,4 @@
-from peewee import CharField, IntegerField, ForeignKeyField
+from peewee import CharField, SmallIntegerField, ForeignKeyField
 
 from .base_model import BaseModel
 from .match import Match
@@ -6,9 +6,9 @@ from .match import Match
 class MatchPlayer(BaseModel):
     Match = ForeignKeyField(Match, backref="players")
     SummonerName = CharField()
-    Kills = IntegerField(default=0)
-    Deaths = IntegerField(default=0)
-    Assists = IntegerField(default=0)
+    Kills = SmallIntegerField(default=0)
+    Deaths = SmallIntegerField(default=0)
+    Assists = SmallIntegerField(default=0)
 
     @property
     def kda(self) -> float:
