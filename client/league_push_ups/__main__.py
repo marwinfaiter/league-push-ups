@@ -1,5 +1,4 @@
 from typing import Optional
-import time
 import json
 from cattrs import structure
 import asyncio
@@ -8,7 +7,6 @@ import requests.exceptions
 from lcu_driver import Connector
 from lcu_driver.connection import Connection
 from lcu_driver.events.responses import WebsocketEventResponse
-from discord import Colour, SyncWebhook, Embed
 
 from .models.game_update import GameUpdate
 from .models.game_update.game_state import GameState
@@ -17,9 +15,7 @@ from .models.lobby import Lobby
 from .models.lobby.member import Member
 from .models.end_of_game.eog_stats_block import EOGStatsBlock
 from .models.cli_args import CLIArgs
-from .models.end_of_game.stats import Stats
 from .models.match import Match
-from .client.riot import RiotClient
 from .client.game import GameClient
 from .client.backend import BackendClient
 from .models.event import Event
@@ -28,25 +24,19 @@ from .models.event.event_name import EventName
 connector = Connector()
 
 class LeaguePushUps:
-    webhook: SyncWebhook
     min: int
     max: int
     backend_client: BackendClient
     session_id: int
-    api_key: Optional[str] = None
     lobby: Optional[Lobby] = None
     game_id: Optional[int] = None
     events: set[Event] = set()
-    riot_client: RiotClient = RiotClient()
     game_client: GameClient = GameClient()
 
     # fired when LCU API is ready to be used
     @staticmethod
     @connector.ready # type: ignore[misc]
     async def connect(connection: Connection) -> None:
-        summoner = await connection.request('get', '/lol-chat/v1/me')
-        summoner_json = await summoner.json()
-        LeaguePushUps.riot_client.region = summoner_json["platformId"].lower()
         print('LCU API is ready to be used.')
 
     # fired when League Client is closed (or disconnected from websocket)
@@ -93,10 +83,12 @@ class LeaguePushUps:
                 return
 
             LeaguePushUps.game_id = game_update.payload.id
-            LeaguePushUps.backend_client.send_lobby(
+            LeaguePushUps.backend_client.send_match_settings(
                 LeaguePushUps.session_id,
                 LeaguePushUps.game_id,
-                LeaguePushUps.lobby
+                LeaguePushUps.lobby,
+                LeaguePushUps.min,
+                LeaguePushUps.max,
             )
             connector.loop.create_task(LeaguePushUps.poll_game_data())
         elif game_update.payload.gameState == GameState.TERMINATED:
@@ -140,83 +132,27 @@ class LeaguePushUps:
             if team.stats is None:
                 continue
 
-            match = Match(team.stats.CHAMPIONS_KILLED, [])
-            embeds = []
-            for player in team.players:
-                if not LeaguePushUps.lobby.is_summoner_member(player.summonerName):
-                    continue
-
-                match.players.append(player)
-
-                embed = Embed(colour=Colour.green(), title=player.summonerName)
-                embed.add_field(name="Game Mode", value=eog_stats_block.gameMode.value)
-                embed.add_field(name="Game ID", value=eog_stats_block.gameId)
-                embed.add_field(
-                    name="Game Length",
-                    value=time.strftime('%H:%M:%S', time.gmtime(eog_stats_block.gameLength))
-                )
-                embed.add_field(name="Kills", value=player.stats.CHAMPIONS_KILLED)
-                embed.add_field(name="Deaths", value=player.stats.NUM_DEATHS)
-                embed.add_field(name="Assists", value=player.stats.ASSISTS)
-
-                kill_participation = LeaguePushUps.calculate_kill_participation(
-                    player.stats,
-                    team.stats.CHAMPIONS_KILLED
-                )
-                push_ups = LeaguePushUps.calculate_push_ups(kill_participation, player.stats.kda)
-
-                embed.add_field(name="Kill Participation", value=f"{kill_participation * 100:.2f}%")
-                embed.add_field(name="KDA", value=f"{player.stats.kda:.2f}")
-                embed.add_field(name="Push-ups", value=push_ups)
-                embeds.append(embed)
+            match = Match(team.stats.CHAMPIONS_KILLED, [
+                player
+                for player in team.players
+                if LeaguePushUps.lobby.is_summoner_member(player.summonerName)
+            ])
             if match.players:
                 LeaguePushUps.backend_client.send_match(
                     LeaguePushUps.session_id,
                     eog_stats_block.gameId,
                     match
                 )
-            if embeds:
-                LeaguePushUps.webhook.send(embeds=embeds)
-
-    @staticmethod
-    def calculate_push_ups(kill_participation: float, kda: float) -> int:
-        if kill_participation == 0 or kda == 0:
-            return LeaguePushUps.max
-
-        return round(
-            min(
-                LeaguePushUps.min + \
-                    (LeaguePushUps.max/2) / (kda * kill_participation),
-                LeaguePushUps.max
-            )
-        )
-
-    @staticmethod
-    def calculate_kill_participation(stats: Stats, team_kills: int) -> float:
-        if team_kills:
-            return (stats.CHAMPIONS_KILLED + stats.ASSISTS) / team_kills
-
-        return 1
 
 
 def main() -> None:
     cli_args = CLIArgs().parse_args()
     LeaguePushUps.min = cli_args.min
     LeaguePushUps.max = cli_args.max
-    if cli_args.action == "calculate": # type: ignore[attr-defined] # pylint: disable=no-member
-        stats = Stats(cli_args.kills, cli_args.deaths, cli_args.assists) # type: ignore[attr-defined] # pylint: disable=no-member
-        print(
-            LeaguePushUps.calculate_push_ups(
-                LeaguePushUps.calculate_kill_participation(stats, cli_args.team_kills), # type: ignore[attr-defined] # pylint: disable=no-member
-                stats.kda
-            )
-        )
-    else:
-        print(f"Starting with arguments: {cli_args}")
-        LeaguePushUps.webhook = SyncWebhook.from_url(cli_args.webhook_url)
-        LeaguePushUps.backend_client = BackendClient("http://localhost:5000")
-        LeaguePushUps.session_id = LeaguePushUps.backend_client.get_session_id()
-        connector.start()
+    print(f"Starting with arguments: {cli_args}")
+    LeaguePushUps.backend_client = BackendClient("http://localhost:5000")
+    LeaguePushUps.session_id = LeaguePushUps.backend_client.get_session_id()
+    connector.start()
 
 
 if __name__ == "__main__":
