@@ -35,6 +35,13 @@ services:
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - mariadb:/var/lib/mysql
+  redis:
+    image: redis:alpine
+    environment:
+      TZ: "Europe/Stockholm"
+    volumes:
+      - redis:/data
 
 volumes:
   mariadb:
+  redis:

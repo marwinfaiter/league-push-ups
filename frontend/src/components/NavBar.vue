@@ -7,18 +7,26 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <div class="navbar-nav mr-auto">
+      <div class="navbar-nav mx-auto">
         <router-link to="/live_games" class="nav-item nav-link">Live Games</router-link>
         <router-link to="/history" class="nav-link">History</router-link>
         <router-link to="/summary" class="nav-link">Summary</router-link>
       </div>
     </div>
+    <div class="navbar-nav me-auto">
+      <LoginForm/>
+    </div>
   </nav>
 </template>
 
 <script>
+import LoginForm from './LoginForm.vue';
+
 export default {
-  name: 'NavBar'
+  name: 'NavBar',
+  components: {
+    LoginForm
+  }
 }
 </script>
 
@@ -27,6 +35,7 @@ export default {
 .navbar {
   width: 100%;
   padding-left: 10px;
+  padding-right: 30px;
   text-align: center;
 }
 

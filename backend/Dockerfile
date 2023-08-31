@@ -1,6 +1,6 @@
 FROM python:3.11-slim AS base
 ENV FLASK_APP=league_push_ups_backend.app
-RUN pip install Flask>=2 Werkzeug==2.1.2 Flask-RESTful flask-cors
+RUN apt update && apt install -y libsasl2-dev libldap2-dev libssl-dev gcc
 COPY league_push_ups_backend /src
 COPY setup.py /src/setup.py
 WORKDIR /src

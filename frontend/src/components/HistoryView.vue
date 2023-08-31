@@ -34,7 +34,9 @@ export default {
     },
     methods: {
         async getData() {
-            this.matches = await this.backend_client.get("matches");
+            this.matches = await this.backend_client
+              .get("matches")
+              .then(response => response.data);
         },
     },
     components: { HistoryPlayerStats }
