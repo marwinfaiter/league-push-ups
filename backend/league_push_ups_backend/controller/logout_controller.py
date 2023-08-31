@@ -4,4 +4,4 @@ from . import Controller
 
 class LogoutController(Controller):
     def post(self):
-        session["name"] = None
+        session["user"] = None

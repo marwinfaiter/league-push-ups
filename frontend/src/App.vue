@@ -6,6 +6,7 @@
 <script>
   import NavBar from "./components/NavBar.vue";
   import HistoryView from "./components/HistoryView.vue";
+  import APIKeys from "./components/APIKeys.vue";
 
   export default {
     name: "App",
@@ -13,8 +14,17 @@
         return {
             routes: [
               {
+                name: "History",
                 path: "/history",
                 component: HistoryView
+              },
+              {
+                name: "API Keys",
+                path: "/api_keys",
+                component: APIKeys,
+                meta: {
+                  requiresAuth: true
+                }
               }
             ]
         };

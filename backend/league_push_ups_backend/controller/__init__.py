@@ -12,13 +12,14 @@ class Controller(Resource):
     @staticmethod
     def _build_cors_preflight_response():
         response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "*")
-        response.headers.add('Access-Control-Allow-Methods', "*")
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost")
+        response.headers.add('Access-Control-Allow-Headers', "Content-Type,Authorization")
+        response.headers.add('Access-Control-Allow-Methods', "GET,POST,DELETE,OPTIONS")
+        response.headers.add('Access-Control-Allow-Credentials', "true")
         return response
 
     @staticmethod
     def _corsify_actual_response(response):
-        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost")
         response.headers.add("Access-Control-Expose-Headers", "*")
         return response
