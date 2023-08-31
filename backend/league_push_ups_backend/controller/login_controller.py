@@ -2,6 +2,7 @@ from flask import request, session
 import ldap
 
 from . import Controller
+from ..models.database.user import User
 
 class LoginController(Controller):
     def post(self):
@@ -14,7 +15,8 @@ class LoginController(Controller):
             # perform a synchronous bind
             ldap_client.set_option(ldap.OPT_REFERRALS, 0)
             ldap_client.simple_bind_s(f"cn={username},ou=users,dc=buddaphest,dc=se", password)
-            session["name"] = username
+            user, _ = User.get_or_create(username=username)
+            session["user"] = user
             return username, 200
         except ldap.INVALID_CREDENTIALS:
             ldap_client.unbind()

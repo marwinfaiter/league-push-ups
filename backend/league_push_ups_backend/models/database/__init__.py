@@ -3,6 +3,8 @@ from .match import Match
 from .match_player import MatchPlayer
 from .event import Event
 from .assister import Assister
+from .user import User
+from .user.api_key import APIKey
 
 from .base_model import database
 
@@ -12,6 +14,8 @@ __all__ = [
     "MatchPlayer",
     "Event",
     "Assister",
+    "User",
+    "APIKey",
 ]
 
 def create_tables():
@@ -22,4 +26,6 @@ def create_tables():
             MatchPlayer,
             Event,
             Assister,
+            User,
+            APIKey,
         ])
