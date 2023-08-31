@@ -9,5 +9,5 @@ class Assister(BaseModel):
 
     class Meta:
         indexes = (
-            (("Event", "Assister",), True)
+            (("Event", "Assister"), True),
         )

@@ -23,5 +23,5 @@ class Event(BaseModel):
 
     class Meta:
         indexes = (
-            (("Match", "EventID",), True)
+            (("Match", "EventID"), True),
         )

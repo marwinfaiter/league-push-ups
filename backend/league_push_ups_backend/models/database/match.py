@@ -14,8 +14,10 @@ class Match(BaseModel):
         verbose_name="create time"
     )
     TeamKills = SmallIntegerField(default=0)
+    MaxPushUps = SmallIntegerField(default=50)
+    MinPushUps = SmallIntegerField(default=10)
 
     class Meta:
         indexes = (
-            (("Session", "MatchID",), True)
+            (("Session", "MatchID"), True),
         )
