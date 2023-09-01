@@ -2,7 +2,6 @@ version: "3.9"
 
 services:
   frontend:
-    image: docker.buddaphest.se/marwinfaiter/league_push_ups:frontend
     build:
       context: ./frontend
       target: develop-stage
@@ -12,7 +11,6 @@ services:
       - ./frontend:/app
     command: /bin/sh -c "yarn serve"
   backend:
-    image: docker.buddaphest.se/marwinfaiter/league_push_ups:backend
     build:
       context: ./backend
       target: dev
