@@ -62,10 +62,8 @@ pipeline {
         }
         stage("Run backend tests") {
             agent {
-                docker {
-                    dockerfile {
-                        dir "backend"
-                    }
+                dockerfile {
+                    dir "backend"
                     reuseNode true
                 }
             }
