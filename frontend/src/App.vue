@@ -20,7 +20,7 @@
               },
               {
                 name: "API Keys",
-                path: "/api_keys",
+                path: "/user/api_keys",
                 component: APIKeys,
                 meta: {
                   requiresAuth: true
