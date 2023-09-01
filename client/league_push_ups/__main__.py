@@ -35,33 +35,33 @@ class LeaguePushUps:
 
     # fired when LCU API is ready to be used
     @staticmethod
-    @connector.ready # type: ignore[misc]
+    @connector.ready
     async def connect(_connection: Connection) -> None:
         print('LCU API is ready to be used.')
 
     # fired when League Client is closed (or disconnected from websocket)
     @staticmethod
-    @connector.close # type: ignore[misc]
+    @connector.close
     async def disconnect(_connection: Connection) -> None:
         print('The client have been closed!')
         await connector.stop()
 
     @staticmethod
-    @connector.ws.register("/lol-lobby/v2/lobby", event_types=("CREATE","UPDATE")) # type: ignore[misc]
+    @connector.ws.register("/lol-lobby/v2/lobby", event_types=("CREATE","UPDATE"))
     async def lobby_create(_connection: Connection, event: WebsocketEventResponse) -> None:
         LeaguePushUps.lobby = structure(event.data, Lobby)
         if LeaguePushUps.lobby:
             print(f"Lobby {event.type}: {LeaguePushUps.lobby.gameConfig.gameMode.value}")
 
     @staticmethod
-    @connector.ws.register("/lol-lobby/v2/lobby/members", event_types=("UPDATE",)) # type: ignore[misc]
+    @connector.ws.register("/lol-lobby/v2/lobby/members", event_types=("UPDATE",))
     async def lobby_members_update(_: Connector, event: WebsocketEventResponse) -> None:
         if LeaguePushUps.lobby:
             print("Updating lobby members")
             LeaguePushUps.lobby.members = tuple(structure(member, Member) for member in event.data)
 
     @staticmethod
-    @connector.ws.register("/lol-lobby/v2/lobby", event_types=("DELETE",)) # type: ignore[misc]
+    @connector.ws.register("/lol-lobby/v2/lobby", event_types=("DELETE",))
     async def lobby_delete(_connection: Connection, _event: WebsocketEventResponse) -> None:
         if not LeaguePushUps.game_id:
             print("Deleting lobby")
@@ -71,7 +71,7 @@ class LeaguePushUps:
     @connector.ws.register(
         "/riot-messaging-service/v1/message/lol-gsm-server/v1/gsm/game-update",
         event_types=("CREATE",)
-    ) # type: ignore[misc]
+    )
     async def game_update(_connection: Connection, event: WebsocketEventResponse) -> None:
         event.data["payload"] = json.loads(event.data["payload"])
         game_update = structure(event.data, GameUpdate)
@@ -123,7 +123,7 @@ class LeaguePushUps:
         print("Stopped polling live game")
 
     @staticmethod
-    @connector.ws.register('/lol-end-of-game/v1/eog-stats-block', event_types=('CREATE',)) # type: ignore[misc]
+    @connector.ws.register('/lol-end-of-game/v1/eog-stats-block', event_types=('CREATE',))
     async def game_end(_connection: Connection, event: WebsocketEventResponse) -> None:
         if LeaguePushUps.lobby is None:
             return
