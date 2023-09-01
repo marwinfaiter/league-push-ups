@@ -1,9 +1,12 @@
 from flask import request
-from flask_login import login_user
+from flask_login import login_user, current_user
+from flask_login.mixins import AnonymousUserMixin
+from peewee import DoesNotExist
 import ldap
 
 from . import Controller
 from ..models.database.user import User
+from ..models.database.user.api_key import APIKey
 
 class LoginController(Controller):
     def post(self):
@@ -18,8 +21,18 @@ class LoginController(Controller):
             ldap_client.simple_bind_s(f"cn={username},ou=users,dc=buddaphest,dc=se", password)
             user, _ = User.get_or_create(username=username)
             login_user(user)
-            return username, 200
         except ldap.INVALID_CREDENTIALS:
             ldap_client.unbind()
-            login_user(User(username, False, False, True))
-            return username, 401
+
+        if isinstance(current_user, AnonymousUserMixin):
+            try:
+                api_key = APIKey.get(value=password)
+                if api_key.user.username == username:
+                    login_user(api_key.user)
+            except DoesNotExist:
+                pass
+
+        if isinstance(current_user, User):
+            return ""
+
+        return "", 401
