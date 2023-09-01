@@ -14,7 +14,9 @@ class Controller(Resource):
     @staticmethod
     def _build_cors_preflight_response() -> Response:
         response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", os.environ.get("PUBLIC_URL"))
+        response.headers.add("Access-Control-Allow-Origin", os.environ.get(
+            "PUBLIC_URL", "https://leaguepushups.buddaphest.se"
+        ))
         response.headers.add('Access-Control-Allow-Headers', "Content-Type,Authorization")
         response.headers.add('Access-Control-Allow-Methods', "GET,POST,DELETE,OPTIONS")
         response.headers.add('Access-Control-Allow-Credentials', "true")
@@ -22,6 +24,8 @@ class Controller(Resource):
 
     @staticmethod
     def _corsify_actual_response(response: Response) -> Response:
-        response.headers.add("Access-Control-Allow-Origin", os.environ.get("PUBLIC_URL"))
+        response.headers.add("Access-Control-Allow-Origin", os.environ.get(
+            "PUBLIC_URL", "https://leaguepushups.buddaphest.se"
+        ))
         response.headers.add("Access-Control-Expose-Headers", "*")
         return response
