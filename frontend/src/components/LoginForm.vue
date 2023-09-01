@@ -38,6 +38,7 @@ export default {
         this.backend_client.login(this.username, this.password)
           .then(response => {
             this.store.commit("set_login", true)
+            return response;
           })
           .catch(error => {
             this.store.commit("set_login", false)
@@ -56,6 +57,7 @@ export default {
         this.backend_client.logout()
           .then(response => {
             this.store.commit("set_login", false)
+            return response;
           })
           .catch(error => {
             if (error.response) {
