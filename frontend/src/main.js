@@ -9,7 +9,7 @@ const app = createApp(App)
 
 class BackendClient {
     constructor() {
-        this.base_url = "http://localhost:5000"
+        this.base_url = "api"
     }
     async get(url) {
         return await axios({
