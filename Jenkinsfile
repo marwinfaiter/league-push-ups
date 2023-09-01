@@ -112,7 +112,7 @@ pipeline {
                         script {
                             docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {
 
-                                def customImage = docker.build("marwinfaiter/league_push_ups:frontend-${env.BUILD_ID}", "--target prod frontend")
+                                def customImage = docker.build("marwinfaiter/league_push_ups:frontend-${env.BUILD_ID}", "--target production-stage frontend")
 
                                 customImage.push()
                                 customImage.push("frontend")
