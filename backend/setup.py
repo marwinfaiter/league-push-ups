@@ -4,7 +4,7 @@ import os
 setup(
     name='league-push-ups-backend',
     version=f'0.0.{os.environ.get("BUILD_ID", 1)}',
-    packages=find_packages(include=["league_push_ups_backend"]),
+    packages=find_packages(include=["league_push_ups_backend", "league_push_ups_backend.*"]),
     install_requires=[
         "requests",
         "redis",
