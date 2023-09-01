@@ -18,11 +18,11 @@ class LoginController(Controller):
             # build a client
             ldap_client = ldap.initialize("ldap://192.168.1.2")
             # perform a synchronous bind
-            ldap_client.set_option(ldap.OPT_REFERRALS, 0)
+            ldap_client.set_option(ldap.OPT_REFERRALS, 0) # pylint: disable=no-member
             ldap_client.simple_bind_s(f"cn={username},ou=users,dc=buddaphest,dc=se", password)
             user, _ = User.get_or_create(username=username)
             login_user(user)
-        except ldap.INVALID_CREDENTIALS:
+        except ldap.INVALID_CREDENTIALS: # pylint: disable=no-member
             ldap_client.unbind()
 
         if isinstance(current_user, AnonymousUserMixin):
