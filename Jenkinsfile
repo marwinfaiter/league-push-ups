@@ -63,7 +63,9 @@ pipeline {
         stage("Run backend tests") {
             agent {
                 docker {
-                    image "python:3.11-slim"
+                    dockerfile {
+                        dir "backend"
+                    }
                     reuseNode true
                 }
             }
