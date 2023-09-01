@@ -46,7 +46,9 @@ pipeline {
                 }
                 stage("Build wheel") {
                     steps {
-                        sh "python client/setup.py bdist_wheel --dist-dir client/dist"
+                        dir("client") {
+                            sh "python setup.py bdist_wheel"
+                        }
                     }
                 }
                 stage("Publish wheel") {
