@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import axios from "axios"
 import App from "./App.vue"
 import Vuex from 'vuex'
@@ -57,7 +57,7 @@ class BackendClient {
 app.config.globalProperties.backend_client = new BackendClient()
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes: App.data().routes
 })
 
