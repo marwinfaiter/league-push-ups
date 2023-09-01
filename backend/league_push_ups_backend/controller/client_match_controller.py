@@ -7,8 +7,10 @@ from ..models.database.match_player import MatchPlayer
 
 class ClientMatchController(Controller):
     @login_required
-    def post(self, session_id: str, match_id: int):
+    def post(self, session_id: str, match_id: int) -> None:
         match_data = request.get_json()
+        assert isinstance(match_data, dict)
+
         match, _ = Match.get_or_create(
             Session=session_id,
             MatchID=match_id,

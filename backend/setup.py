@@ -30,6 +30,7 @@ setup(
             "mypy",
             "types-requests",
             "types-Flask-Cors",
+            "types-peewee",
         ]
     }
 )

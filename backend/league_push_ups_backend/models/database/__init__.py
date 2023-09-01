@@ -18,7 +18,7 @@ __all__ = [
     "APIKey",
 ]
 
-def create_tables():
+def create_tables() -> None:
     with database:
         database.create_tables([
             Session,

@@ -4,20 +4,18 @@ from attrs import define
 from cattrs import structure
 from league_push_ups.__main__ import LeaguePushUps
 from league_push_ups.models.end_of_game.eog_stats_block import EOGStatsBlock
-from league_push_ups.models.end_of_game.player import Player
 from league_push_ups.models.lobby import Lobby
 from league_push_ups.models.lobby.member import Member
 from league_push_ups.models.lobby.game_mode import GameMode
-from league_push_ups.models.match import Match
-from discord import SyncWebhook
-
+from league_push_ups.client.backend import BackendClient
 class TestLeaguePushUps(IsolatedAsyncioTestCase):
     def setUp(self) -> None:
-        LeaguePushUps.webhook = SyncWebhook.from_url(f"https://discord.com/api/webhooks/{0:020d}/{0:060d}")
         LeaguePushUps.min = 10
         LeaguePushUps.max = 50
+        LeaguePushUps.session_id = 123
         LeaguePushUps.game_id = None
         LeaguePushUps.lobby = None
+        LeaguePushUps.backend_client = mock(BackendClient)
 
     def tearDown(self) -> None:
         verifyNoUnwantedInteractions()
@@ -31,7 +29,7 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.lobby_members_update(None, ExampeMemberUpdate())
         if LeaguePushUps.lobby:
-            assert LeaguePushUps.lobby.members == [Member(27926438, "TEST")]
+            assert LeaguePushUps.lobby.members == (Member(27926438, "TEST"),)
 
     async def test_lobby_delete(self) -> None:
         await LeaguePushUps.lobby_create(None, ExampleLobby())
@@ -39,27 +37,18 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
         assert LeaguePushUps.lobby is None
 
     async def test_game_start(self) -> None:
+        expect(LeaguePushUps.backend_client).send_match_settings(ANY, ANY, ANY, ANY, ANY).thenReturn()
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.game_update(None, ExampleGameStart())
         assert LeaguePushUps.game_id is not None
 
     async def test_game_end(self) -> None:
-        LeaguePushUps.webhook = mock(spec=SyncWebhook)
-        expect(LeaguePushUps.webhook, times=1).send(embeds=ANY).thenReturn(True)
+        expect(LeaguePushUps.backend_client).send_match(ANY, ANY, ANY).thenReturn()
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.game_end(None, ExampleGameEnd())
         await LeaguePushUps.game_update(None, ExampleGameEndUpdate())
         example_game_end = structure(ExampleGameEnd().data, EOGStatsBlock)
         assert example_game_end.teams[0].stats is not None
-        assert LeaguePushUps.matches == [
-            Match(
-                example_game_end.teams[0].stats.CHAMPIONS_KILLED,
-                [
-                    Player(player.summonerName, player.teamId, player.stats)
-                    for player in example_game_end.teams[0].players
-                ]
-            )
-        ]
         assert LeaguePushUps.game_id is None
 
 @define
@@ -226,7 +215,7 @@ class ExampleGameEndUpdate:
 @define
 class ExampleGameStart:
     data = {
-        "payload": "{\"id\":6568491591,\"gameState\":\"START_REQUESTED\",\"gameType\":\"PRACTICE_GAME\"}",
+        "payload": "{\"id\":6568491591,\"gameState\":\"START_REQUESTED\",\"gameType\":\"NORMAL_GAME\"}",
         "timestamp": 1693078946955,
     }
 

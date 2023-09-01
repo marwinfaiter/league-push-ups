@@ -1,10 +1,11 @@
 from playhouse.shortcuts import model_to_dict
+from typing import Any
 
 from . import Controller
 from ..models.database.match import Match
 
 class FrontendMatchesController(Controller):
-    def get(self):
+    def get(self) -> list[dict[str, Any]]:
         matches = Match.select()
         matches_payload = []
         for match in matches:

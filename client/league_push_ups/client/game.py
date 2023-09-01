@@ -35,7 +35,7 @@ class GameClient:
             for event in response_json["Events"]
         }
 
-    def get_scores_for_team(self) -> tuple[LiveScore]:
+    def get_scores_for_team(self) -> tuple[LiveScore, ...]:
         game_data = self.get_all_game_data()
         scores = []
         active_player = next(

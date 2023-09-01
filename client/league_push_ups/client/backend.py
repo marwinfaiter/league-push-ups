@@ -24,7 +24,7 @@ class BackendClient:
         response.raise_for_status()
         return response
 
-    def login(self, username: str, password: str):
+    def login(self, username: str, password: str) -> None:
         self.post("login", {"username": username, "password": password})
 
     def send_events(self, session_id: int, game_id: int, events: set[Event]) -> None:
@@ -33,7 +33,9 @@ class BackendClient:
     def send_match(self, session_id: int, game_id: int, match: Match) -> None:
         self.post(f"match/{session_id}/{game_id}", unstructure(match))
 
-    def send_match_settings(self, session_id: int, game_id: int, lobby: Lobby, min_push_ups: int, max_push_ups: int) -> None:
+    def send_match_settings(self, session_id: int, game_id: int,
+            lobby: Lobby, min_push_ups: int, max_push_ups: int
+        ) -> None:
         payload = {
             "lobby": unstructure(lobby),
             "min_push_ups": min_push_ups,
@@ -41,7 +43,7 @@ class BackendClient:
         }
         self.post(f"match_settings/{session_id}/{game_id}", payload)
 
-    def send_scores(self, session_id: int, game_id: int, scores: tuple[LiveScore]) -> None:
+    def send_scores(self, session_id: int, game_id: int, scores: tuple[LiveScore, ...]) -> None:
         self.post(f"scores/{session_id}/{game_id}", [unstructure(score) for score in scores])
 
     def get_session_id(self) -> int:

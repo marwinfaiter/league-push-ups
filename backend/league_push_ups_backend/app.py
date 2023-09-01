@@ -7,6 +7,8 @@ from flask_login import LoginManager
 from peewee import DoesNotExist
 import redis
 
+from typing import Optional
+
 from league_push_ups_backend.controller.login_controller import LoginController
 from league_push_ups_backend.controller.logout_controller import LogoutController
 from league_push_ups_backend.controller.api_keys_controller import APIKeysController
@@ -24,12 +26,15 @@ flask_app = None
 socketio = None
 login_manager = None
 
-def create_app():
+def create_app() -> Flask:
     app=Flask(__name__)
     api = Api(app)
     CORS(app, expose_headers=["Content-Disposition"], supports_credentials=True)
 
-    app.secret_key = r'^qfT%6e3Sg!y*8QUmmrlSxc^foMaWRFF11b77Tk@tOtgefzR$@P9n&$X!GkDAR0kehjItj#AEOEo@80^i5hSTiGwGF&J&WSMjdst9pxddXxd%K@zPNMWCK%!HvV7GD$Q'
+    app.secret_key = (
+        r"^qfT%6e3Sg!y*8QUmmrlSxc^foMaWRFF11b77Tk@tOtgefzR$"
+        r"@P9n&$X!GkDAR0kehjItj#AEOEo@80^i5hSTiGwGF&J&WSMjdst9pxddXxd%K@zPNMWCK%!HvV7GD$Q"
+    )
 
     # Configure Redis for storing the session data on the server-side
     app.config['SESSION_TYPE'] = 'redis'
@@ -51,17 +56,17 @@ def create_app():
 
     return app
 
-def create_socketio(app):
+def create_socketio(app: Flask) -> SocketIO:
     return SocketIO(app)
 
-def create_login_manager(app):
-    lm = LoginManager()
-    lm.init_app(app)
-    return lm
+def create_login_manager(app: Flask) -> LoginManager:
+    return LoginManager(app)
 
-def user_loader(uid):
+def user_loader(uid: str) -> Optional[User]:
     try:
-        return User.get(username=uid)
+        user = User.get(username=uid)
+        assert isinstance(user, User)
+        return user
     except DoesNotExist:
         return None
 

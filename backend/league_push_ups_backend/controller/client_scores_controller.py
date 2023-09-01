@@ -9,9 +9,10 @@ from ..models.database.base_model import database
 
 class ClientScoresController(Controller):
     @login_required
-    def post(self, session_id: str, match_id: int):
+    def post(self, session_id: str, match_id: int) -> None:
         scores = request.get_json()
-        with database.atomic() as txn:
+        assert isinstance(scores, list)
+        with database.atomic() as _:
             match, _ = Match.get_or_create(
                 Session=session_id,
                 MatchID=match_id,

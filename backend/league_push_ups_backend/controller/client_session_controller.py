@@ -5,6 +5,6 @@ from ..models.database.session import Session
 
 class ClientSessionController(Controller):
     @login_required
-    def get(self):
+    def get(self) -> int:
         session = Session.create()
-        return session.id
+        return int(session.id) # pylint: disable=no-member

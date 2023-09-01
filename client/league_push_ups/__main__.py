@@ -36,7 +36,7 @@ class LeaguePushUps:
     # fired when LCU API is ready to be used
     @staticmethod
     @connector.ready # type: ignore[misc]
-    async def connect(connection: Connection) -> None:
+    async def connect(_connection: Connection) -> None:
         print('LCU API is ready to be used.')
 
     # fired when League Client is closed (or disconnected from websocket)
@@ -83,6 +83,7 @@ class LeaguePushUps:
                 return
 
             LeaguePushUps.game_id = game_update.payload.id
+            assert isinstance(LeaguePushUps.lobby, Lobby)
             LeaguePushUps.backend_client.send_match_settings(
                 LeaguePushUps.session_id,
                 LeaguePushUps.game_id,

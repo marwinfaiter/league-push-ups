@@ -14,16 +14,16 @@ class User(BaseModel):
         )
 
     @property
-    def is_active(self):
-        return self.active
+    def is_active(self) -> bool:
+        return bool(self.active)
 
     @property
-    def is_authenticated(self):
-        return self.authenticated
+    def is_authenticated(self) -> bool:
+        return bool(self.authenticated)
 
     @property
-    def is_anonymous(self):
-        return self.anonymous
+    def is_anonymous(self) -> bool:
+        return bool(self.anonymous)
 
-    def get_id(self):
-        return self.username
+    def get_id(self) -> str:
+        return str(self.username)

@@ -9,8 +9,9 @@ from ..models.database.user import User
 from ..models.database.user.api_key import APIKey
 
 class LoginController(Controller):
-    def post(self):
+    def post(self) -> tuple[str, int]:
         credentials = request.get_json()
+        assert isinstance(credentials, dict)
         username = credentials["username"]
         password = credentials["password"]
         try:
@@ -33,6 +34,6 @@ class LoginController(Controller):
                 pass
 
         if isinstance(current_user, User):
-            return ""
+            return "", 200
 
         return "", 401
