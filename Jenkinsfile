@@ -60,6 +60,68 @@ pipeline {
                 }
             }
         }
+        stage("Run backend tests") {
+            agent {
+                docker {
+                    image "python:3.11-slim"
+                    reuseNode true
+                }
+            }
+            environment {
+                HOME = "${env.WORKSPACE}"
+            }
+            stages {
+                stage("Install dependencies") {
+                    steps {
+                        sh "python -m pip install --user backend/[test]"
+                    }
+                }
+                stage("Run tests") {
+                    stages {
+                        stage("Run mypy") {
+                            steps {
+                                sh "python -m mypy backend/league_push_ups_backend"
+                            }
+                        }
+                        stage("Run pylint") {
+                            steps {
+                                sh "python -m pylint backend/league_push_ups_backend"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage("Build and publish docker") {
+            stages {
+                stage("Backend") {
+                    steps {
+                        script {
+                            docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {
+
+                                def customImage = docker.build("marwinfaiter/league_push_ups:backend-${env.BUILD_ID}", "--target prod backend")
+
+                                customImage.push()
+                                customImage.push("backend")
+                            }
+                        }
+                    }
+                }
+                stage("Frontend") {
+                    steps {
+                        script {
+                            docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {
+
+                                def customImage = docker.build("marwinfaiter/league_push_ups:frontend-${env.BUILD_ID}", "--target prod frontend")
+
+                                customImage.push()
+                                customImage.push("frontend")
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     post {
         always {
