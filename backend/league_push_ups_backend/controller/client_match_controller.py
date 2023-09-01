@@ -1,10 +1,12 @@
 from flask import request
+from flask_login import login_required
 
 from . import Controller
 from ..models.database.match import Match
 from ..models.database.match_player import MatchPlayer
 
 class ClientMatchController(Controller):
+    @login_required
     def post(self, session_id: str, match_id: int):
         match_data = request.get_json()
         match, _ = Match.get_or_create(

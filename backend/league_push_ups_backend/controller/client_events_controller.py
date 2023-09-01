@@ -1,4 +1,5 @@
 from flask import request
+from flask_login import login_required
 from peewee import DoesNotExist
 
 from . import Controller
@@ -9,6 +10,7 @@ from ..models.database.assister import Assister
 from ..models.database.base_model import database
 
 class ClientEventsController(Controller):
+    @login_required
     def post(self, session_id: str, match_id: int):
         events = request.get_json()
         with database.atomic() as txn:

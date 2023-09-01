@@ -24,6 +24,9 @@ class BackendClient:
         response.raise_for_status()
         return response
 
+    def login(self, username: str, password: str):
+        self.post("login", {"username": username, "password": password})
+
     def send_events(self, session_id: int, game_id: int, events: set[Event]) -> None:
         self.post(f"events/{session_id}/{game_id}", [unstructure(event) for event in events])
 

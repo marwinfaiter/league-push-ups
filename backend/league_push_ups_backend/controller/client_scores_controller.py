@@ -1,5 +1,6 @@
 from flask import request
 from peewee import DoesNotExist
+from flask_login import login_required
 
 from . import Controller
 from ..models.database.match import Match
@@ -7,6 +8,7 @@ from ..models.database.match_player import MatchPlayer
 from ..models.database.base_model import database
 
 class ClientScoresController(Controller):
+    @login_required
     def post(self, session_id: str, match_id: int):
         scores = request.get_json()
         with database.atomic() as txn:

@@ -149,8 +149,8 @@ def main() -> None:
     cli_args = CLIArgs().parse_args()
     LeaguePushUps.min = cli_args.min
     LeaguePushUps.max = cli_args.max
-    print(f"Starting with arguments: {cli_args}")
     LeaguePushUps.backend_client = BackendClient("http://localhost:5000")
+    LeaguePushUps.backend_client.login(cli_args.username, cli_args.password)
     LeaguePushUps.session_id = LeaguePushUps.backend_client.get_session_id()
     connector.start()
 
