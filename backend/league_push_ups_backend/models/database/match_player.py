@@ -10,6 +10,11 @@ class MatchPlayer(BaseModel):
     Deaths = SmallIntegerField(default=0)
     Assists = SmallIntegerField(default=0)
 
+    class Meta:
+        indexes = (
+            (("Match", "SummonerName"), True),
+        )
+
     @property
     def kda(self) -> float:
         if not self.Deaths:

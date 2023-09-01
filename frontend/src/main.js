@@ -66,11 +66,11 @@ const store = new Vuex.Store({
         storage: window.sessionStorage,
     })],
     state: {
-        username: null
+        logged_in: false
     },
     mutations: {
-        set_login(state, username) {
-            state.username = username
+        set_login(state, new_state) {
+            state.logged_in = new_state
         }
     }
 });
@@ -81,7 +81,7 @@ router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
       // this route requires auth, check if logged in
       // if not, redirect to login page.
-      if (!store.state.username) {
+      if (!store.state.logged_in) {
         next("/")
       } else {
         next() // go to wherever I'm going

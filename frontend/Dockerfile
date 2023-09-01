@@ -2,7 +2,7 @@
 FROM node:current-alpine3.15 as develop-stage
 WORKDIR /app
 COPY package*.json ./
-RUN yarn add
+RUN yarn install
 COPY . .
 # build stage
 FROM develop-stage as build-stage

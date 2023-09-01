@@ -1,7 +1,8 @@
-from flask import session
+from flask_login import logout_user
 
 from . import Controller
 
 class LogoutController(Controller):
     def post(self):
-        session["user"] = None
+        logout_user()
+        return ""

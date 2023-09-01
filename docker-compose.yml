@@ -18,7 +18,7 @@ services:
       target: dev
     environment:
       MYSQL_DATABASE: league_push_ups
-      MYSQL_HOST: "database"
+      MYSQL_HOST: database
       MYSQL_USER: league_push_ups
       MYSQL_PASSWORD: league_push_ups
     ports:

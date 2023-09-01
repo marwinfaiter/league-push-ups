@@ -1,4 +1,5 @@
-from flask import request, session
+from flask import request
+from flask_login import login_user
 import ldap
 
 from . import Controller
@@ -16,8 +17,9 @@ class LoginController(Controller):
             ldap_client.set_option(ldap.OPT_REFERRALS, 0)
             ldap_client.simple_bind_s(f"cn={username},ou=users,dc=buddaphest,dc=se", password)
             user, _ = User.get_or_create(username=username)
-            session["user"] = user
+            login_user(user)
             return username, 200
         except ldap.INVALID_CREDENTIALS:
             ldap_client.unbind()
+            login_user(User(username, False, False, True))
             return username, 401

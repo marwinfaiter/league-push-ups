@@ -14,7 +14,7 @@
       </div>
     </div>
     <div class="navbar-nav me-auto">
-      <router-link v-if="this.store.state.username" to="/api_keys" class="nav-link">API Keys</router-link>
+      <router-link v-if="this.store.state.logged_in" to="/api_keys" class="nav-link">API Keys</router-link>
       <LoginForm/>
     </div>
   </nav>

@@ -1,5 +1,5 @@
 <template>
-  <form v-if="!this.store.state.username" class="me-auto">
+  <form v-if="!this.store.state.logged_in" class="me-auto">
     <div class="row">
       <!-- User input -->
       <div class="col">
@@ -37,9 +37,10 @@ export default {
         }
         this.backend_client.login(this.username, this.password)
           .then(response => {
-            this.store.commit("set_login", response.data)
+            this.store.commit("set_login", true)
           })
           .catch(error => {
+            this.store.commit("set_login", false)
             if (error.response) {
               console.log(error.response.data);
               console.log(error.response.status);
@@ -48,13 +49,13 @@ export default {
           })
       },
       logout() {
-        if (!this.store.state.username) {
+        if (!this.store.state.logged_in) {
           return
         }
 
         this.backend_client.logout()
           .then(response => {
-            this.store.commit("set_login", null)
+            this.store.commit("set_login", false)
           })
           .catch(error => {
             if (error.response) {

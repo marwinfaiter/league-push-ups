@@ -6,7 +6,7 @@ from . import User
 
 class APIKey(BaseModel):
     user = ForeignKeyField(User, backref="api_keys")
-    value = CharField(default=uuid4().hex)
+    value = CharField(default=lambda: uuid4().hex)
 
     class Meta:
         indexes = (
