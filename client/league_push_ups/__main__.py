@@ -1,5 +1,5 @@
 from typing import Optional
-import json
+from json import loads
 from cattrs import structure
 import asyncio
 import requests.exceptions
@@ -20,6 +20,9 @@ from .client.game import GameClient
 from .client.backend import BackendClient
 from .models.event import Event
 from .models.event.event_name import EventName
+from .run_ws_patch import run_ws
+
+Connection.run_ws = run_ws
 
 connector = Connector()
 
@@ -73,7 +76,7 @@ class LeaguePushUps:
         event_types=("CREATE",)
     )
     async def game_update(_connection: Connection, event: WebsocketEventResponse) -> None:
-        event.data["payload"] = json.loads(event.data["payload"])
+        event.data["payload"] = loads(event.data["payload"])
         game_update = structure(event.data, GameUpdate)
 
         if game_update.payload.gameState == GameState.START_REQUESTED:
@@ -120,6 +123,7 @@ class LeaguePushUps:
 
             except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
                 pass
+        LeaguePushUps.events.clear()
         print("Stopped polling live game")
 
     @staticmethod
