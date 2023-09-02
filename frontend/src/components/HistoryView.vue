@@ -3,7 +3,7 @@
       <table role="button" data-bs-toggle="modal" data-bs-target="#match_modal" class="table table-sm table-hover rounded" style="overflow: hidden">
         <thead class="table-light">
           <tr>
-            <th>SummonerName</th>
+            <th>Summoner Name</th>
             <th>Kills</th>
             <th>Deaths</th>
             <th>Assists</th>
@@ -25,12 +25,15 @@
         </tbody>
       </table>
       <div class="modal" id="match_modal">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <table class="table table-borderless table-sm table-hover rounded" style="overflow: hidden; margin: 0">
               <thead class="table-light">
                 <tr>
+                  <th>Session ID</th>
+                  <th>Session Start</th>
                   <th>Game ID</th>
+                  <th>Game Start</th>
                   <th>Team Kills</th>
                   <th>Minimum Push Ups</th>
                   <th>Maximum Push Ups</th>
@@ -38,7 +41,10 @@
               </thead>
               <tbody>
                 <tr>
+                  <td>{{ match.Session.id }}</td>
+                  <td>{{ match.Session.date_time }}</td>
                   <td>{{ match.MatchID }}</td>
+                  <td>{{ match.date_time }}</td>
                   <td>{{ match.TeamKills }}</td>
                   <td>{{ match.MinPushUps }}</td>
                   <td>{{ match.MaxPushUps }}</td>

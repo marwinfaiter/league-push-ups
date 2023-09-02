@@ -9,7 +9,7 @@ const app = createApp(App)
 
 class BackendClient {
     constructor() {
-        this.base_url = "api"
+        this.base_url = "https://leaguepushups.buddaphest.se/api"
     }
     async get(url) {
         return await axios({
