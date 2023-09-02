@@ -19,6 +19,7 @@ setup(
         "python-ldap",
         "pymysql",
         "peewee",
+        "peewee-db-evolve",
         "attrs",
         "cattrs",
     ],

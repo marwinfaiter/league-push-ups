@@ -1,3 +1,5 @@
+import peeweedbevolve as _
+
 from peewee import ForeignKeyField, SmallIntegerField, BigIntegerField, DateTimeField
 from datetime import datetime
 from zoneinfo import ZoneInfo

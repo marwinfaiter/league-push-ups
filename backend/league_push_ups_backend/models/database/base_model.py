@@ -1,3 +1,5 @@
+import peeweedbevolve as _
+
 from peewee import Model, MySQLDatabase
 import os
 

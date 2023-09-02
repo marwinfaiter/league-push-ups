@@ -15,6 +15,7 @@ class SummonersController(Controller):
     @login_required
     def post(self) -> tuple[str, int]:
         summoner = request.get_json()
+        assert isinstance(summoner, str)
         try:
             Summoner.create(user=current_user.id, name=summoner)
             return summoner, 201
@@ -23,7 +24,9 @@ class SummonersController(Controller):
 
     @login_required
     def delete(self) -> None:
+        summoner = request.get_json()
+        assert isinstance(summoner, str)
         Summoner.delete().where(
             Summoner.user == current_user.id,
-            Summoner.name == request.get_json()
+            Summoner.name == summoner
         ).execute()

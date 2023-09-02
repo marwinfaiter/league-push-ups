@@ -1,3 +1,5 @@
+import peeweedbevolve as _
+
 from peewee import ForeignKeyField, CharField
 
 from .base_model import BaseModel

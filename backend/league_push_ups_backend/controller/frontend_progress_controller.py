@@ -23,9 +23,9 @@ class FrontendProgressController(Controller):
             ).switch(
                 MatchPlayer
             ).join(
-                Summoner, on=(Summoner.name == MatchPlayer.SummonerName)
+                Summoner, on=(Summoner.name == MatchPlayer.SummonerName,)
             ).join(
-                User, on=(Summoner.user.id == User.id)
+                User, on=(Summoner.user.id == User.id,) # type: ignore[attr-defined] # pylint: disable=no-member
             )
         payloads = []
         for user_stat in user_stats:

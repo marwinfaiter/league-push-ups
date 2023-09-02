@@ -1,3 +1,5 @@
+import peeweedbevolve as _
+
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
@@ -6,7 +8,6 @@ from flask_socketio import SocketIO
 from flask_login import LoginManager
 from peewee import DoesNotExist
 import redis
-
 from typing import Optional
 
 from league_push_ups_backend.controller.login_controller import LoginController
@@ -21,8 +22,10 @@ from league_push_ups_backend.controller.client_events_controller import ClientEv
 from league_push_ups_backend.controller.frontend_matches_controller import FrontendMatchesController
 from league_push_ups_backend.controller.frontend_progress_controller import FrontendProgressController
 
-from league_push_ups_backend.models.database import create_tables
 from league_push_ups_backend.models.database.user import User
+from league_push_ups_backend.models.database.base_model import database
+
+database.evolve(interactive=False, ignore_tables=["basemodel"]) # type: ignore[attr-defined]
 
 flask_app = None
 socketio = None
@@ -44,7 +47,6 @@ def create_app() -> Flask:
     app.config['SESSION_USE_SIGNER'] = True
     app.config['SESSION_REDIS'] = redis.from_url('redis://redis:6379')
     Session(app)
-    create_tables()
 
     api.add_resource(LoginController, "/login")
     api.add_resource(LogoutController, "/logout")

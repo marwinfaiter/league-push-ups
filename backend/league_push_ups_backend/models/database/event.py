@@ -1,3 +1,5 @@
+import peeweedbevolve as _
+
 from peewee import CharField, SmallIntegerField, FloatField, ForeignKeyField, BooleanField
 
 from .base_model import BaseModel

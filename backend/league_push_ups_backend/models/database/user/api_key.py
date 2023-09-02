@@ -1,3 +1,5 @@
+import peeweedbevolve as _
+
 from peewee import CharField, ForeignKeyField
 from uuid import uuid4
 

@@ -1,3 +1,5 @@
+import peeweedbevolve as _
+
 from peewee import DateTimeField
 from datetime import datetime
 from zoneinfo import ZoneInfo
