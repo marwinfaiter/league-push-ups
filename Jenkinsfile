@@ -97,6 +97,9 @@ pipeline {
         stage("Build and publish docker") {
             stages {
                 stage("Backend") {
+                    when {
+                        branch 'main'
+                    }
                     steps {
                         script {
                             docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {
@@ -110,6 +113,9 @@ pipeline {
                     }
                 }
                 stage("Frontend") {
+                    when {
+                        branch 'main'
+                    }
                     steps {
                         script {
                             docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {
