@@ -1,6 +1,6 @@
 <template>
     <div v-for="match in this.matches" :key="match.id" class="container">
-      <table role="button" data-bs-toggle="modal" data-bs-target="#match_modal" class="table table-sm table-hover rounded" style="overflow: hidden">
+      <table role="button" data-bs-toggle="modal" :data-bs-target="'#match_modal_'+ match.id" class="table table-sm table-hover rounded" style="overflow: hidden">
         <thead class="table-light">
           <tr>
             <th>Summoner Name</th>
@@ -24,7 +24,7 @@
           </tr>
         </tbody>
       </table>
-      <div class="modal" id="match_modal">
+      <div class="modal" :id="'match_modal_' + match.id">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <table class="table table-borderless table-sm table-hover rounded" style="overflow: hidden; margin: 0">

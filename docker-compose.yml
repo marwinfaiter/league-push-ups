@@ -19,6 +19,7 @@ services:
       MYSQL_HOST: database
       MYSQL_USER: league_push_ups
       MYSQL_PASSWORD: league_push_ups
+      PUBLIC_URL: http://localhost
     ports:
       - 5000:5000
     volumes:
