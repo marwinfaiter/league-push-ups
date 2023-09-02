@@ -18,7 +18,7 @@
         <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <font-awesome-icon :icon="['fas', 'user']" />
         </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
           <router-link to="/user/api_keys" class="nav-link">API Keys</router-link>
           <router-link to="/user/summoners" class="nav-link">Summoners</router-link>
         </div>

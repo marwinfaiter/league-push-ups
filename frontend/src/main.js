@@ -4,6 +4,8 @@ import axios from "axios"
 import App from "./App.vue"
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
+import VueSweetalert2 from 'vue-sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -106,5 +108,6 @@ router.beforeEach((to, from, next) => {
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(router)
-app.use(Vuex);
+app.use(Vuex)
+app.use(VueSweetalert2)
 app.mount('#app')

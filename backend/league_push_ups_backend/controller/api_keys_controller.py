@@ -18,8 +18,7 @@ class APIKeysController(Controller):
 
     @login_required
     def delete(self) -> None:
-        data = request.get_json()
-        assert isinstance(data, dict)
-        api_key = data["api_key"]
-        api_key_model = APIKey.get(user=current_user.id, value=api_key)
-        api_key_model.delete_instance()
+        APIKey.delete().where(
+            APIKey.user == current_user.id,
+            APIKey.value == request.get_json()
+        ).execute()

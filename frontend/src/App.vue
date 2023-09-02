@@ -8,6 +8,7 @@
   import HistoryView from "./components/HistoryView.vue";
   import ProgressView from "./components/ProgressView.vue";
   import APIKeys from "./components/APIKeys.vue";
+  import SummonersView from "./components/SummonersView.vue";
 
   export default {
     name: "App",
@@ -28,6 +29,14 @@
                 name: "API Keys",
                 path: "/user/api_keys",
                 component: APIKeys,
+                meta: {
+                  requiresAuth: true
+                }
+              },
+              {
+                name: "Summoners",
+                path: "/user/summoners",
+                component: SummonersView,
                 meta: {
                   requiresAuth: true
                 }

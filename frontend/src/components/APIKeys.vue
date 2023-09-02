@@ -39,7 +39,7 @@ export default {
         this.$router.go()
       },
       async delete_api_key(api_key) {
-        await this.backend_client.delete("api_keys", {api_key})
+        await this.backend_client.delete("api_keys", api_key)
         this.$router.go()
       }
     },

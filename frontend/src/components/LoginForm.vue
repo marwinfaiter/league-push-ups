@@ -1,5 +1,5 @@
 <template>
-  <form v-if="!this.store.state.logged_in" class="me-auto">
+  <form v-if="!this.store.state.logged_in">
     <div class="row">
       <!-- User input -->
       <div class="col">
@@ -15,7 +15,7 @@
       <button @click="login" class="btn btn-primary col">Sign in</button>
     </div>
   </form>
-  <form v-else class="me-auto">
+  <form v-else>
       <!-- Submit button -->
       <button @click="logout" class="btn btn-primary col">Sign out</button>
   </form>
@@ -75,4 +75,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+form {
+  margin-left: 10px;
+}
 </style>
