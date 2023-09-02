@@ -26,7 +26,4 @@ class SummonersController(Controller):
     def delete(self) -> None:
         summoner = request.get_json()
         assert isinstance(summoner, str)
-        Summoner.delete().where(
-            Summoner.user == current_user.id,
-            Summoner.name == summoner
-        ).execute()
+        Summoner.get(user=current_user.id, name=summoner).delete_instance()
