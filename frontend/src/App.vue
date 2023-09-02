@@ -6,6 +6,7 @@
 <script>
   import NavBar from "./components/NavBar.vue";
   import HistoryView from "./components/HistoryView.vue";
+  import ProgressView from "./components/ProgressView.vue";
   import APIKeys from "./components/APIKeys.vue";
 
   export default {
@@ -17,6 +18,11 @@
                 name: "History",
                 path: "/history",
                 component: HistoryView
+              },
+              {
+                name: "Progress",
+                path: "/Progress",
+                component: ProgressView
               },
               {
                 name: "API Keys",

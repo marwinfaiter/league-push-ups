@@ -18,6 +18,7 @@ from league_push_ups_backend.controller.client_match_controller import ClientMat
 from league_push_ups_backend.controller.client_scores_controller import ClientScoresController
 from league_push_ups_backend.controller.client_events_controller import ClientEventsController
 from league_push_ups_backend.controller.frontend_matches_controller import FrontendMatchesController
+from league_push_ups_backend.controller.frontend_progress_controller import FrontendProgressController
 
 from league_push_ups_backend.models.database import create_tables
 from league_push_ups_backend.models.database.user import User
@@ -53,6 +54,7 @@ def create_app() -> Flask:
     api.add_resource(ClientScoresController, "/scores/<session_id>/<int:match_id>")
     api.add_resource(ClientEventsController, "/events/<session_id>/<int:match_id>")
     api.add_resource(FrontendMatchesController, "/matches")
+    api.add_resource(FrontendProgressController, "/progress")
 
     return app
 

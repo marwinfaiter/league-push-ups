@@ -1,6 +1,7 @@
 <template>
-    <table class="container table table-striped table-dark table-hover">
-      <thead>
+  <div class="container">
+    <table role="button" class="table table-sm table-hover rounded" style="overflow: hidden">
+      <thead class="table-light">
         <tr>
           <th>API Keys</th>
           <th><button @click="create_api_key" class="btn btn-primary">Create</button></th>
@@ -13,6 +14,7 @@
         </tr>
       </tbody>
     </table>
+  </div>
 </template>
 
 <script>

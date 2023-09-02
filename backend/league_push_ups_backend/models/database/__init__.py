@@ -5,6 +5,7 @@ from .event import Event
 from .assister import Assister
 from .user import User
 from .user.api_key import APIKey
+from .user.summoner import Summoner
 
 from .base_model import database
 
@@ -16,6 +17,7 @@ __all__ = [
     "Assister",
     "User",
     "APIKey",
+    "Summoner",
 ]
 
 def create_tables() -> None:
@@ -28,4 +30,5 @@ def create_tables() -> None:
             Assister,
             User,
             APIKey,
+            Summoner,
         ])

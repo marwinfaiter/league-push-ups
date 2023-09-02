@@ -8,7 +8,7 @@ from .session import Session
 
 class Match(BaseModel):
     Session = ForeignKeyField(Session, backref="matches")
-    MatchID = BigIntegerField()
+    MatchID = BigIntegerField(unique=True)
     date_time = DateTimeField(
         default=lambda: datetime.now(ZoneInfo(os.environ.get("TZ", "Europe/Stockholm"))),
         verbose_name="create time"

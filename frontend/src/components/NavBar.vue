@@ -8,13 +8,21 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <div class="navbar-nav mx-auto">
-        <router-link to="/live_games" class="nav-item nav-link">Live Games</router-link>
+        <router-link to="/live_games" class="nav-link">Live Games</router-link>
         <router-link to="/history" class="nav-link">History</router-link>
-        <router-link to="/summary" class="nav-link">Summary</router-link>
+        <router-link to="/progress" class="nav-link">Progress</router-link>
       </div>
     </div>
     <div class="navbar-nav me-auto">
-      <router-link v-if="this.store.state.logged_in" to="/user/api_keys" class="nav-link">API Keys</router-link>
+      <div v-if="this.store.state.logged_in" class="dropdown">
+        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <font-awesome-icon :icon="['fas', 'user']" />
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <router-link to="/user/api_keys" class="nav-link">API Keys</router-link>
+          <router-link to="/user/summoners" class="nav-link">Summoners</router-link>
+        </div>
+      </div>
       <LoginForm/>
     </div>
   </nav>

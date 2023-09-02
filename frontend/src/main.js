@@ -5,6 +5,19 @@ import App from "./App.vue"
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 
+/* import the fontawesome core */
+import { library } from '@fortawesome/fontawesome-svg-core'
+
+/* import font awesome icon component */
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+/* import specific icons */
+import { fas } from '@fortawesome/free-solid-svg-icons'
+
+/* add icons to the library */
+library.add(fas)
+
+
 const app = createApp(App)
 
 class BackendClient {
@@ -22,7 +35,7 @@ class BackendClient {
             withCredentials: true,
         })
     }
-    async post(url, data) {
+    async post(url, data={}) {
         return await axios({
             method: "post",
             url: `${this.base_url}/${url}`,
@@ -34,7 +47,7 @@ class BackendClient {
             withCredentials: true,
         })
     }
-    async delete(url, data) {
+    async delete(url, data={}) {
         return await axios({
             method: "delete",
             url: `${this.base_url}/${url}`,
@@ -91,6 +104,7 @@ router.beforeEach((to, from, next) => {
     }
   })
 
+app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(router)
 app.use(Vuex);
 app.mount('#app')

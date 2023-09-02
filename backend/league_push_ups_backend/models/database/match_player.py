@@ -1,4 +1,5 @@
 from peewee import CharField, SmallIntegerField, ForeignKeyField
+from playhouse.hybrid import hybrid_property
 
 from .base_model import BaseModel
 from .match import Match
@@ -15,28 +16,25 @@ class MatchPlayer(BaseModel):
             (("Match", "SummonerName"), True),
         )
 
-    @property
+    @hybrid_property
     def kda(self) -> float:
         if not self.Deaths:
-            return float(self.Kills + self.Assists)
+            return self.Kills + self.Assists
 
-        return float((self.Kills + self.Assists) / self.Deaths)
+        return (self.Kills + self.Assists) / self.Deaths
 
-    @property
+    @hybrid_property
     def kill_participation(self) -> float:
         if self.Match.TeamKills:
-            return float((self.Kills + self.Assists) / self.Match.TeamKills)
+            return (self.Kills + self.Assists) / self.Match.TeamKills
         return 1
 
-    @property
+    @hybrid_property
     def push_ups(self) -> int:
         if self.kill_participation == 0 or self.kda == 0:
-            return int(self.Match.MaxPushUps)
+            return self.Match.MaxPushUps
 
-        return int(round(
-            min(
-                self.Match.MinPushUps + \
-                    (self.Match.MaxPushUps/2) / (self.kda * self.kill_participation),
-                self.Match.MaxPushUps
-            )
+        return round(min(
+            self.Match.MinPushUps + (self.Match.MaxPushUps/2) / (self.kda * self.kill_participation),
+            self.Match.MaxPushUps
         ))
