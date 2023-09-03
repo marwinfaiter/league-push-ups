@@ -18,9 +18,9 @@
             <td class="text-success">{{ player.Kills }}</td>
             <td class="text-danger">{{ player.Deaths }}</td>
             <td class="text-warning">{{ player.Assists }}</td>
-            <td>{{ format_number(player.KDA) }}</td>
-            <td>{{ format_number(player.KillParticipation * 100) }}%</td>
-            <td class="text-info">{{ player.PushUps }}</td>
+            <td>{{ format_number(player.kda) }}</td>
+            <td>{{ format_number(player.kill_participation * 100) }}%</td>
+            <td class="text-info">{{ player.push_ups }}</td>
           </tr>
         </tbody>
       </table>

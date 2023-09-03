@@ -1,6 +1,6 @@
 import peeweedbevolve as _
 
-from peewee import CharField, SmallIntegerField, ForeignKeyField
+from peewee import CharField, SmallIntegerField, ForeignKeyField, Case, fn
 from playhouse.hybrid import hybrid_property
 
 from .base_model import BaseModel
@@ -20,16 +20,36 @@ class MatchPlayer(BaseModel):
 
     @hybrid_property
     def kda(self) -> float:
-        if not self.Deaths:
+        if self.Deaths == 0:
             return self.Kills + self.Assists
 
         return (self.Kills + self.Assists) / self.Deaths
 
+    @kda.expression
+    def kda(cls) -> float:
+        return Case(
+            None,
+            [
+                ((cls.Deaths==0), cls.Kills + cls.Assists)
+            ],
+            (cls.Kills + cls.Assists) / cls.Deaths
+        )
+
     @hybrid_property
     def kill_participation(self) -> float:
-        if self.Match.TeamKills:
+        if self.Match.TeamKills > 0:
             return (self.Kills + self.Assists) / self.Match.TeamKills
         return 1
+
+    @kill_participation.expression
+    def kill_participation(cls) -> float:
+        return Case(
+            None,
+            [
+                ((cls.Match.TeamKills==0), 1)
+            ],
+            (cls.Kills + cls.Assists) / cls.Match.TeamKills
+        )
 
     @hybrid_property
     def push_ups(self) -> int:
@@ -40,3 +60,22 @@ class MatchPlayer(BaseModel):
             self.Match.MinPushUps + (self.Match.MaxPushUps/2) / (self.kda * self.kill_participation),
             self.Match.MaxPushUps
         ))
+
+    @push_ups.expression
+    def push_ups(cls) -> int:
+        return Case(
+            None,
+            [
+                ((cls.kill_participation==0,), cls.Match.MaxPushUps),
+                ((cls.kda==0,), cls.Match.MaxPushUps)
+            ],
+            fn.ROUND(
+                Case(
+                    None,
+                    [
+                        ((cls.Match.MinPushUps + (cls.Match.MaxPushUps/2) / (cls.kda * cls.kill_participation)>=cls.Match.MaxPushUps), cls.Match.MaxPushUps)
+                    ],
+                    cls.Match.MinPushUps + (cls.Match.MaxPushUps/2) / (cls.kda * cls.kill_participation)
+                )
+            )
+        )
