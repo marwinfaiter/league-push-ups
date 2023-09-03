@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <table role="button" class="table table-sm table-hover rounded" style="overflow: hidden">
+    <table class="table table-sm table-hover rounded" style="overflow: hidden">
       <thead class="table-light">
         <tr>
           <th>Summoners</th>
