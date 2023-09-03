@@ -6,7 +6,6 @@ from typing import Any
 
 from ..models.event import Event
 from ..models.match import Match
-from ..models.lobby import Lobby
 from ..models.live_score import LiveScore
 
 @define
