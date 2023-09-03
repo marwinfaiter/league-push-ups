@@ -13,7 +13,7 @@ class FrontendProgressController(Controller):
         filters = request.get_json()
         assert isinstance(filters, dict)
         user_stats = MatchPlayer.select(
-            Summoner.user.username,
+            User.username,
             fn.SUM(MatchPlayer.Kills).alias("Kills"),
             fn.SUM(MatchPlayer.Deaths).alias("Deaths"),
             fn.SUM(MatchPlayer.Assists).alias("Assists"),
@@ -26,6 +26,8 @@ class FrontendProgressController(Controller):
                 Summoner, on=(Summoner.name == MatchPlayer.SummonerName,)
             ).join(
                 User
+            ).group_by(
+                User.username
             )
         payloads = []
         for user_stat in user_stats:
