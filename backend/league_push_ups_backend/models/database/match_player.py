@@ -5,9 +5,11 @@ from playhouse.hybrid import hybrid_property
 
 from .base_model import BaseModel
 from .match import Match
+from .user import User
 
 class MatchPlayer(BaseModel):
     Match = ForeignKeyField(Match, backref="players")
+    User = ForeignKeyField(User, backref="matches")
     SummonerName = CharField()
     Kills = SmallIntegerField(default=0)
     Deaths = SmallIntegerField(default=0)

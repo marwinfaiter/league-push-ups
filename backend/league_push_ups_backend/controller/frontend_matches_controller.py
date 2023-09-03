@@ -25,5 +25,6 @@ class FrontendMatchesController(Controller):
                     MatchPlayer.Match==match.id
                 ).dicts()
             )
-            matches_payload.append(match_payload)
+            if match_payload["players"]:
+                matches_payload.append(match_payload)
         return matches_payload

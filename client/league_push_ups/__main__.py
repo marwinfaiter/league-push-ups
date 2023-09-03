@@ -90,7 +90,6 @@ class LeaguePushUps:
             LeaguePushUps.backend_client.send_match_settings(
                 LeaguePushUps.session_id,
                 LeaguePushUps.game_id,
-                LeaguePushUps.lobby,
                 LeaguePushUps.min,
                 LeaguePushUps.max,
             )

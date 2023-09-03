@@ -5,6 +5,7 @@ from flask_login import login_required
 from . import Controller
 from ..models.database.match import Match
 from ..models.database.match_player import MatchPlayer
+from ..models.database.user.summoner import Summoner
 from ..models.database.base_model import database
 
 class ClientScoresController(Controller):
@@ -20,7 +21,8 @@ class ClientScoresController(Controller):
             match.TeamKills = sum(score["kills"] for score in scores)
             for score in scores:
                 try:
-                    match_player = MatchPlayer.get(Match=match.id, SummonerName=score["summonerName"])
+                    summoner = Summoner.get(name=score["summonerName"])
+                    match_player, _ = MatchPlayer.get_or_create(Match=match.id, User=summoner.user.id, SummonerName=score["summonerName"])
                     match_player.Kills = score["kills"]
                     match_player.Deaths = score["deaths"]
                     match_player.Assists = score["assists"]
