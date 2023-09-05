@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import axios from "axios"
 import App from "./App.vue"
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
@@ -20,54 +19,9 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 library.add(fas)
 
 
-const app = createApp(App)
+import BackendClient from './javascript/backend_client';
 
-class BackendClient {
-    constructor() {
-        this.base_url = "https://leaguepushups.buddaphest.se/api"
-    }
-    async get(url) {
-        return await axios({
-            method: "get",
-            url: `${this.base_url}/${url}`,
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            withCredentials: true,
-        })
-    }
-    async post(url, data={}) {
-        return await axios({
-            method: "post",
-            url: `${this.base_url}/${url}`,
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            data: data,
-            withCredentials: true,
-        })
-    }
-    async delete(url, data={}) {
-        return await axios({
-            method: "delete",
-            url: `${this.base_url}/${url}`,
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            data: data,
-            withCredentials: true,
-        })
-    }
-    async login(username, password) {
-        return this.post("login", {username, password})
-    }
-    async logout() {
-        return this.post("logout")
-    }
-}
+const app = createApp(App)
 
 app.config.globalProperties.backend_client = new BackendClient()
 

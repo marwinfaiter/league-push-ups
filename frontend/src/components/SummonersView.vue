@@ -35,26 +35,23 @@ export default {
     },
     methods: {
       async getData() {
-        this.summoners = await this.backend_client
-          .get("summoners")
-          .then(response => response.data);
+        this.summoners = await this.backend_client.get("summoners").then(response => response.data);
       },
       async add_summoner() {
-        await this.backend_client.post("summoners", this.new_summoner)
-          .then(response => {
-            this.$router.go();
-            return response;
-          })
-          .catch(error => {
-            this.$swal.fire({
-              text: error.response.data,
-              icon: "error",
-            });
-          });
+        await this.backend_client.post("summoners", this.new_summoner).then(response => {
+            if (response) {
+              this.$router.go();
+              return response;
+            }
+        });
       },
       async delete_summoner(summoner) {
-        await this.backend_client.delete("summoners", summoner)
-        this.$router.go()
+        await this.backend_client.delete("summoners", summoner).then(response => {
+          if (response) {
+              this.$router.go();
+              return response;
+            }
+        })
       }
     },
 }
