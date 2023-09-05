@@ -54,6 +54,7 @@ pipeline {
                 stage("Publish wheel") {
                     when {
                         branch 'main'
+                        changeset "client/*"
                     }
                     steps {
                         sh "python -m pip install --user twine"
@@ -99,6 +100,7 @@ pipeline {
                 stage("Backend") {
                     when {
                         branch 'main'
+                        changeset "backend/*"
                     }
                     steps {
                         script {
@@ -115,6 +117,7 @@ pipeline {
                 stage("Frontend") {
                     when {
                         branch 'main'
+                        changeset "frontend/*"
                     }
                     steps {
                         script {
