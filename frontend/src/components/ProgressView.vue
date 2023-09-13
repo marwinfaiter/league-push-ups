@@ -14,7 +14,7 @@
     <input class="btn-check" type="radio" name="inlineRadioOptions" id="SESSION" value="group_by_session" v-model="this.current_grouping_method">
     <label class="btn btn-outline-success" for="SESSION">SESSION</label>
 
-  <div v-for="username in Object.keys(this.user_match_groupers)" :key="username" class="container">
+  <div v-for="username in Object.keys(this.user_match_groupers)" :key="username" class="container-fluid">
     <table class="table table-sm table-hover rounded" style="overflow: hidden">
       <thead class="table-light">
         <tr>
@@ -38,9 +38,11 @@
           <td class="text-info">{{ this.user_match_groupers[username].push_ups }} ({{ format_number(this.user_match_groupers[username].avg_push_ups) }})</td>
         </tr>
         <tr>
-          <td colspan="7">
-            <div class="progress">
-              <div :class="'progress-bar ' + this.colors[index % this.colors.length] " role="progressbar" v-for="(match, index) in group(username)" :key="match.identifier" :style="{width: match.push_ups * 100 / this.user_match_groupers[username].push_ups +'%'}" :aria-valuenow="match.push_ups * 100 / this.user_match_groupers[username].push_ups" aria-valuemin="0" aria-valuemax="100">{{ match.push_ups }} ({{ match.identifier }})</div>
+          <td colspan="7" class="container">
+            <div class="progress" style="height: 40px">
+              <template v-for="(match, index) in group(username)" :key="match.identifier">
+                <div :class="'progress-bar ' + this.colors[index % this.colors.length] " role="progressbar"  :style="{width: match.push_ups * 100 / this.user_match_groupers[username].push_ups +'%'}" :aria-valuenow="match.push_ups * 100 / this.user_match_groupers[username].push_ups" aria-valuemin="0" aria-valuemax="100"><span class="fw-bolder">{{ match.push_ups }}</span> <span class="fw-light">({{ match.identifier }})</span></div>
+              </template>
             </div>
           </td>
         </tr>
@@ -85,7 +87,7 @@ export default {
 
         },
         group(username) {
-          return MatchGrouper[this.current_grouping_method](this.user_match_groupers[username].matches)
+          return MatchGrouper[this.current_grouping_method](this.user_match_groupers[username].matches);
         },
         format_number(number) {
           return parseFloat(number).toFixed(2)
