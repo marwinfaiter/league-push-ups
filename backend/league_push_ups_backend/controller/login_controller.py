@@ -27,7 +27,7 @@ class LoginController(Controller):
             login_user(user)
             session["groups"] = result
             session["summoners"] = [summoner.name for summoner in user.summoners]
-        except ldap.INVALID_CREDENTIALS:
+        except ldap.INVALID_CREDENTIALS: # pylint: disable=no-member
             ldap_client.ldap.unbind()
         except RuntimeError:
             pass

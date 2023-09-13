@@ -20,7 +20,7 @@ class LDAPClient:
     def get_groups(self) -> dict[str, list[str]]:
         response = self.ldap.search_s(
             'ou=groups,dc=buddaphest,dc=se',
-            ldap.SCOPE_SUBTREE,
+            ldap.SCOPE_SUBTREE, # pylint: disable=no-member
             "(|(cn=leaguepushups-admins)(cn=leaguepushups))",
             ["cn", "memberUid"]
         )
