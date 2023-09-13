@@ -14,7 +14,7 @@
       </div>
     </div>
     <div class="navbar-nav me-auto">
-      <div v-if="this.store.state.logged_in" class="dropdown">
+      <div v-if="this.store.state.login" class="dropdown">
         <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <font-awesome-icon :icon="['fas', 'user']" />
         </button>
