@@ -38,10 +38,10 @@
           <td class="text-info">{{ this.user_match_groupers[username].push_ups }} ({{ format_number(this.user_match_groupers[username].avg_push_ups) }})</td>
         </tr>
         <tr>
-          <td colspan="7" class="container">
+            <td colspan="7">
             <div class="progress" style="height: 40px">
               <template v-for="(match, index) in group(username)" :key="match.identifier">
-                <div :class="'progress-bar ' + this.colors[index % this.colors.length] " role="progressbar"  :style="{width: match.push_ups * 100 / this.user_match_groupers[username].push_ups +'%'}" :aria-valuenow="match.push_ups * 100 / this.user_match_groupers[username].push_ups" aria-valuemin="0" aria-valuemax="100"><span class="fw-bolder">{{ match.push_ups }}</span> <span class="fw-light">({{ match.identifier }})</span></div>
+                  <div :class="'progress-bar ' + this.colors[index % this.colors.length] " role="progressbar" :style="{width: match.push_ups * 100 / this.user_match_groupers[username].push_ups +'%'}" :aria-valuenow="match.push_ups * 100 / this.user_match_groupers[username].push_ups" aria-valuemin="0" aria-valuemax="100"><span class="fw-bolder">{{ match.push_ups }}</span> <span class="fw-light">({{ match.identifier }})</span></div>
               </template>
             </div>
           </td>
@@ -69,7 +69,8 @@ export default {
               "bg-info",
               "bg-dark",
               "bg-muted",
-            ]
+            ],
+            rewards: []
         };
     },
     async created() {
@@ -84,7 +85,11 @@ export default {
                   this.user_match_groupers[username] = new MatchGrouper(username, matches);
                 }
               });
-
+            await this.backend_client.get("rewards").then((response) => {
+              if (response) {
+                this.rewards = response.data;
+              }
+            })
         },
         group(username) {
           return MatchGrouper[this.current_grouping_method](this.user_match_groupers[username].matches);

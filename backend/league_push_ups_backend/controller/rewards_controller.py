@@ -17,7 +17,7 @@ class RewardsController(Controller):
             return "You're not allowed to create new rewards", 401
         data = request.get_json()
         try:
-            Reward.create(description=data["description"], push_ups=data["push_ups"])
+            Reward.create(name=data["name"], description=data["description"], push_ups=data["push_ups"])
         except IntegrityError as e:
             return str(e), 400
         return "", 201
