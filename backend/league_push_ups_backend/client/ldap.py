@@ -1,4 +1,5 @@
 from attrs import define, field
+from typing import Any
 import ldap
 
 
@@ -7,7 +8,7 @@ class LDAPClient:
     base_url: str
     ldap: ldap = field()
     @ldap.default
-    def _initialize_ldap(self) -> ldap.ldapobject.LDAPObject:
+    def _initialize_ldap(self) -> Any:
         ldap_client = ldap.initialize(self.base_url)
         # perform a synchronous bind
         ldap_client.set_option(ldap.OPT_REFERRALS, 0) # pylint: disable=no-member
