@@ -7,6 +7,7 @@
   import NavBar from "./components/NavBar.vue";
   import HistoryView from "./components/HistoryView.vue";
   import ProgressView from "./components/ProgressView.vue";
+  import RewardsView from "./components/RewardsView.vue";
   import APIKeys from "./components/APIKeys.vue";
   import SummonersView from "./components/SummonersView.vue";
 
@@ -22,8 +23,13 @@
               },
               {
                 name: "Progress",
-                path: "/Progress",
+                path: "/progress",
                 component: ProgressView
+              },
+              {
+                name: "Rewards",
+                path: "/rewards",
+                component: RewardsView
               },
               {
                 name: "API Keys",

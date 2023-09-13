@@ -21,6 +21,7 @@
         <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
           <router-link to="/user/api_keys" class="nav-link">API Keys</router-link>
           <router-link to="/user/summoners" class="nav-link">Summoners</router-link>
+          <router-link v-if="this.store.state.login.groups.includes('leaguepushups-admins')" to="/rewards" class="nav-link">Rewards</router-link>
         </div>
       </div>
       <LoginForm/>
