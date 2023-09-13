@@ -14,13 +14,17 @@ from league_push_ups_backend.controller.login_controller import LoginController
 from league_push_ups_backend.controller.logout_controller import LogoutController
 from league_push_ups_backend.controller.api_keys_controller import APIKeysController
 from league_push_ups_backend.controller.summoners_controller import SummonersController
+
 from league_push_ups_backend.controller.client_session_controller import ClientSessionController
 from league_push_ups_backend.controller.client_match_settings_controller import ClientMatchSettingsController
 from league_push_ups_backend.controller.client_match_controller import ClientMatchController
 from league_push_ups_backend.controller.client_scores_controller import ClientScoresController
 from league_push_ups_backend.controller.client_events_controller import ClientEventsController
+
 from league_push_ups_backend.controller.frontend_matches_controller import FrontendMatchesController
 from league_push_ups_backend.controller.frontend_progress_controller import FrontendProgressController
+from league_push_ups_backend.controller.frontend_match_player_toggle_pushups_finished_controller \
+    import FrontendMatchPlayerTogglePushupsFinishedController
 
 from league_push_ups_backend.models.database.user import User
 from league_push_ups_backend.models.database.base_model import database
@@ -59,6 +63,10 @@ def create_app() -> Flask:
     api.add_resource(ClientEventsController, "/events/<session_id>/<int:match_id>")
     api.add_resource(FrontendMatchesController, "/matches")
     api.add_resource(FrontendProgressController, "/progress")
+    api.add_resource(
+        FrontendMatchPlayerTogglePushupsFinishedController,
+        "/match_player/<int:player_id>/toggle_pushups_finished"
+    )
 
     return app
 

@@ -1,6 +1,6 @@
 import peeweedbevolve as _
 
-from peewee import CharField, SmallIntegerField, ForeignKeyField, Case, fn
+from peewee import CharField, SmallIntegerField, ForeignKeyField, BooleanField, Case, fn
 from playhouse.hybrid import hybrid_property
 
 from .base_model import BaseModel
@@ -14,6 +14,7 @@ class MatchPlayer(BaseModel):
     Kills = SmallIntegerField(default=0)
     Deaths = SmallIntegerField(default=0)
     Assists = SmallIntegerField(default=0)
+    PushUpsFinished = BooleanField(default=True)
 
     class Meta:
         indexes = (

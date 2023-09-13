@@ -67,4 +67,7 @@ export default class BackendClient {
     async logout() {
         return this.post("logout")
     }
+    async toggle_player_pushups_finished(match_player_id) {
+        return this.post(`match_player/${match_player_id}/toggle_pushups_finished`)
+    }
 }

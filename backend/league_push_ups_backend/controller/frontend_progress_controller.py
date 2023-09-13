@@ -18,9 +18,10 @@ class FrontendProgressController(Controller):
             Session.date_time.cast("char").alias("SessionDateTime"),
             Match.date_time.cast("char").alias("MatchDateTime"),
             Match.MatchID,
-            MatchPlayer.Kills.alias("Kills"),
-            MatchPlayer.Deaths.alias("Deaths"),
-            MatchPlayer.Assists.alias("Assists"),
+            MatchPlayer.Kills,
+            MatchPlayer.Deaths,
+            MatchPlayer.Assists,
+            MatchPlayer.PushUpsFinished,
             MatchPlayer.kda.cast("float").alias("KDA"), # type: ignore[attr-defined] # pylint: disable=no-member
             MatchPlayer.kill_participation.cast("float").alias("KillParticipation"), # type: ignore[attr-defined] # pylint: disable=no-member
             MatchPlayer.push_ups.cast("int").alias("PushUps"), # type: ignore[attr-defined] # pylint: disable=no-member

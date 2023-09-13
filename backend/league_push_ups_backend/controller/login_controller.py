@@ -1,6 +1,7 @@
 from flask import request, session
 from flask_login import login_user, logout_user, current_user
 from flask_login.mixins import AnonymousUserMixin
+from typing import Union, Any
 from peewee import DoesNotExist
 from ..client.ldap import LDAPClient
 import ldap
@@ -10,7 +11,7 @@ from ..models.database.user import User
 from ..models.database.user.api_key import APIKey
 
 class LoginController(Controller):
-    def post(self) -> tuple[str, int]:
+    def post(self) -> tuple[Union[str, dict[str, Any], int], int]:
         logout_user()
         credentials = request.get_json()
         assert isinstance(credentials, dict)
@@ -25,6 +26,7 @@ class LoginController(Controller):
             user, _ = User.get_or_create(username=username)
             login_user(user)
             session["groups"] = result
+            session["summoners"] = [summoner.name for summoner in user.summoners]
         except ldap.INVALID_CREDENTIALS:
             ldap_client.ldap.unbind()
         except RuntimeError:
@@ -39,6 +41,6 @@ class LoginController(Controller):
                 pass
 
         if isinstance(current_user, User):
-            return {"username": username, "groups": session["groups"]}, 200
+            return {"username": username, "groups": session["groups"], "summoners": session["summoners"]}, 200
 
         return "Login Failed", 401
