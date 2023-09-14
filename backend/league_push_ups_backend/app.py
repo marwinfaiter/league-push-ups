@@ -56,7 +56,7 @@ def create_app() -> Flask:
     api.add_resource(LoginController, "/login")
     api.add_resource(LogoutController, "/logout")
     api.add_resource(APIKeysController, "/api_keys")
-    api.add_resource(RewardsController, "/rewards")
+    api.add_resource(RewardsController, "/rewards", "/rewards/<int:reward_id>")
     api.add_resource(SummonersController, "/summoners")
     api.add_resource(ClientSessionController, "/session")
     api.add_resource(ClientMatchSettingsController, "/match_settings/<session_id>/<int:match_id>")

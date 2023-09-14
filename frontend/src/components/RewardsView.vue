@@ -7,19 +7,22 @@
           <th>Description</th>
           <th>Push Ups</th>
           <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="reward in this.rewards" :key="reward.id">
-          <td>{{ reward.name }}</td>
-          <td>{{ reward.description }}</td>
-          <td>{{ reward.push_ups }}</td>
+          <td><input :ref="`${reward.id}_name`" :placeholder="reward.name"/></td>
+          <td><input :ref="`${reward.id}_description`" :placeholder="reward.description"/></td>
+          <td><input :ref="`${reward.id}_push_ups`" :placeholder="reward.push_ups"/></td>
+          <td><button type="button" @click="update_reward(reward.id)" class="btn btn-info">Update</button></td>
           <td><button type="button" @click="delete_reward(reward.id)" class="btn btn-danger">Delete</button></td>
         </tr>
         <tr>
-          <td><input v-model="new_reward" placeholder="New Reward"></td>
+          <td><input v-model="new_reward" placeholder="Name"></td>
           <td><input v-model="new_reward_description" placeholder="Description"></td>
           <td><input v-model="new_reward_push_ups" placeholder="Push Ups"></td>
+          <td></td>
           <td><button @click="add_reward" class="btn btn-primary">Add</button></td>
         </tr>
       </tbody>
@@ -63,8 +66,20 @@ export default {
             }
         });
       },
+      async update_reward(reward_id) {
+        let updated_name = this.$refs[`${reward_id}_name`][0].value;
+        let updated_description = this.$refs[`${reward_id}_description`][0].value;
+        let updated_push_ups = this.$refs[`${reward_id}_push_ups`][0].value;
+
+        await this.backend_client.post(`rewards/${reward_id}`, {name: updated_name, description: updated_description, push_ups: updated_push_ups}).then(response => {
+          if (response) {
+              this.$router.go();
+              return response;
+            }
+        })
+      },
       async delete_reward(reward_id) {
-        await this.backend_client.delete("rewards", reward_id).then(response => {
+        await this.backend_client.delete(`rewards/${reward_id}`).then(response => {
           if (response) {
               this.$router.go();
               return response;
