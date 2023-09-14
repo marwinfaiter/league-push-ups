@@ -15,6 +15,7 @@ class RewardsController(Controller):
         if "leaguepushups-admins" not in session["groups"]:
             return "You're not allowed to create new rewards", 401
         data = request.get_json()
+        assert isinstance(data, dict)
         try:
             Reward.create(name=data["name"], description=data["description"], push_ups=data["push_ups"])
         except IntegrityError as e:
@@ -22,7 +23,7 @@ class RewardsController(Controller):
         return "", 201
 
     @login_required
-    def delete(self) -> None:
+    def delete(self) -> tuple[str, int]:
         if "leaguepushups-admins" not in session["groups"]:
             return "You're not allowed to delete rewards", 401
         reward_id = request.get_json()
