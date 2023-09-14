@@ -1,6 +1,6 @@
 import peeweedbevolve as _
 
-from peewee import CharField, BooleanField
+from peewee import CharField, BooleanField, SmallIntegerField
 
 from ..base_model import BaseModel
 
@@ -9,6 +9,8 @@ class User(BaseModel):
     active = BooleanField(default=True)
     authenticated = BooleanField(default=True)
     anonymous = BooleanField(default=False)
+    minimum_push_ups = SmallIntegerField(default=10)
+    maximum_push_ups = SmallIntegerField(default=50)
 
     class Meta:
         indexes = (

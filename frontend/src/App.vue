@@ -8,6 +8,7 @@
   import HistoryView from "./components/HistoryView.vue";
   import ProgressView from "./components/ProgressView.vue";
   import RewardsView from "./components/RewardsView.vue";
+  import UserSettingsView from "./components/UserSettingsView.vue";
   import APIKeys from "./components/APIKeys.vue";
   import SummonersView from "./components/SummonersView.vue";
 
@@ -30,6 +31,14 @@
                 name: "Rewards",
                 path: "/rewards",
                 component: RewardsView
+              },
+              {
+                name: "Settings",
+                path: "/user/settings",
+                component: UserSettingsView,
+                meta: {
+                  requiresAuth: true
+                }
               },
               {
                 name: "API Keys",

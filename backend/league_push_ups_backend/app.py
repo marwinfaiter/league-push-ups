@@ -12,6 +12,7 @@ from typing import Optional
 
 from league_push_ups_backend.controller.login_controller import LoginController
 from league_push_ups_backend.controller.logout_controller import LogoutController
+from league_push_ups_backend.controller.user_controller import UserController
 from league_push_ups_backend.controller.api_keys_controller import APIKeysController
 from league_push_ups_backend.controller.rewards_controller import RewardsController
 from league_push_ups_backend.controller.summoners_controller import SummonersController
@@ -55,6 +56,7 @@ def create_app() -> Flask:
 
     api.add_resource(LoginController, "/login")
     api.add_resource(LogoutController, "/logout")
+    api.add_resource(UserController, "/user")
     api.add_resource(APIKeysController, "/api_keys")
     api.add_resource(RewardsController, "/rewards", "/rewards/<int:reward_id>")
     api.add_resource(SummonersController, "/summoners")
