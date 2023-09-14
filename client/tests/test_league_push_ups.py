@@ -10,8 +10,6 @@ from league_push_ups.models.lobby.game_mode import GameMode
 from league_push_ups.client.backend import BackendClient
 class TestLeaguePushUps(IsolatedAsyncioTestCase):
     def setUp(self) -> None:
-        LeaguePushUps.min = 10
-        LeaguePushUps.max = 50
         LeaguePushUps.session_id = 123
         LeaguePushUps.game_id = None
         LeaguePushUps.lobby = None
@@ -37,7 +35,7 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
         assert LeaguePushUps.lobby is None
 
     async def test_game_start(self) -> None:
-        expect(LeaguePushUps.backend_client).send_match_settings(ANY, ANY, ANY, ANY).thenReturn()
+        expect(LeaguePushUps.backend_client).send_match_settings(ANY, ANY).thenReturn()
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.game_update(None, ExampleGameStart())
         assert LeaguePushUps.game_id is not None
