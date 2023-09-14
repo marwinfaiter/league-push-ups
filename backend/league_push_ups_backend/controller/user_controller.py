@@ -7,8 +7,8 @@ from typing import Any
 from . import Controller
 
 class UserController(Controller):
-    def get(self) -> list[dict[str, Any]]:
-        return model_to_dict(current_user)
+    def get(self) -> dict[str, Any]:
+        return dict(model_to_dict(current_user))
 
     @login_required
     def post(self) -> tuple[str, int]:

@@ -1,3 +1,5 @@
+from peewee import DoesNotExist
+
 from flask import request
 from flask_login import login_required
 
@@ -18,11 +20,14 @@ class ClientMatchController(Controller):
         match.TeamKills = match_data["team_kills"]
         match.save()
         for player in match_data["players"]:
-            match_player = MatchPlayer.get(
-                Match=match.id,
-                SummonerName=player["summonerName"],
-            )
-            match_player.Kills = player["stats"]["CHAMPIONS_KILLED"]
-            match_player.Deaths = player["stats"]["NUM_DEATHS"]
-            match_player.Assists = player["stats"]["ASSISTS"]
-            match_player.save()
+            try:
+                match_player = MatchPlayer.get(
+                    Match=match.id,
+                    SummonerName=player["summonerName"],
+                )
+                match_player.Kills = player["stats"]["CHAMPIONS_KILLED"]
+                match_player.Deaths = player["stats"]["NUM_DEATHS"]
+                match_player.Assists = player["stats"]["ASSISTS"]
+                match_player.save()
+            except DoesNotExist:
+                pass

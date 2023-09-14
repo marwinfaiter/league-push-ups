@@ -1,15 +1,16 @@
 from peewee import IntegrityError
+from playhouse.shortcuts import model_to_dict
 from flask import request, session
 from flask_login import login_required
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from . import Controller
 from ..models.database.reward import Reward
 
 class RewardsController(Controller):
-    def get(self, reward_id: Optional[int]=None) -> list[dict[str, Any]]:
+    def get(self, reward_id: Optional[int]=None) -> Union[list[dict[str, Any]], dict[str, Any]]:
         if reward_id:
-            return Reward.get(reward_id)
+            return dict(model_to_dict(Reward.get(reward_id)))
 
         return list(Reward.select().order_by(Reward.push_ups).dicts())
 

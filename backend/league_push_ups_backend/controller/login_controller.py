@@ -41,6 +41,10 @@ class LoginController(Controller):
                 pass
 
         if isinstance(current_user, User):
-            return {"username": username, "groups": session["groups"], "summoners": session["summoners"]}, 200
+            return {
+                "username": username,
+                "groups": session.setdefault("groups", []),
+                "summoners": session.setdefault("summoners", [])
+            }, 200
 
         return "Login Failed", 401

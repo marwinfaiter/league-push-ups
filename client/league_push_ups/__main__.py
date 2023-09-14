@@ -27,8 +27,6 @@ Connection.run_ws = run_ws
 connector = Connector()
 
 class LeaguePushUps:
-    min: int
-    max: int
     backend_client: BackendClient
     session_id: int
     lobby: Optional[Lobby] = None
@@ -90,8 +88,6 @@ class LeaguePushUps:
             LeaguePushUps.backend_client.send_match_settings(
                 LeaguePushUps.session_id,
                 LeaguePushUps.game_id,
-                LeaguePushUps.min,
-                LeaguePushUps.max,
             )
             connector.loop.create_task(LeaguePushUps.poll_game_data())
         elif game_update.payload.gameState == GameState.TERMINATED:
@@ -151,8 +147,6 @@ class LeaguePushUps:
 
 def main() -> None:
     cli_args = CLIArgs().parse_args()
-    LeaguePushUps.min = cli_args.min
-    LeaguePushUps.max = cli_args.max
     LeaguePushUps.backend_client = BackendClient(cli_args.backend_url)
     LeaguePushUps.backend_client.login(cli_args.username, cli_args.password)
     LeaguePushUps.session_id = LeaguePushUps.backend_client.get_session_id()

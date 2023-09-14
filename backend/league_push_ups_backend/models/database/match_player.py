@@ -14,6 +14,8 @@ class MatchPlayer(BaseModel):
     Kills = SmallIntegerField(default=0)
     Deaths = SmallIntegerField(default=0)
     Assists = SmallIntegerField(default=0)
+    MinPushUps = SmallIntegerField(default=10)
+    MaxPushUps = SmallIntegerField(default=50)
     PushUpsFinished = BooleanField(default=True)
 
     class Meta:
@@ -57,27 +59,27 @@ class MatchPlayer(BaseModel):
     @hybrid_property
     def push_ups(self) -> int:
         if self.kill_participation == 0 or self.kda == 0: # pylint: disable=comparison-with-callable
-            return self.Match.MaxPushUps
+            return self.MaxPushUps
 
         return round(min(
-            self.Match.MinPushUps + (self.Match.MaxPushUps/2) / (self.kda * self.kill_participation),
-            self.Match.MaxPushUps
+            self.MinPushUps + (self.MinPushUps/2) / (self.kda * self.kill_participation),
+            self.MaxPushUps
         ))
 
     @push_ups.expression # type: ignore[no-redef]
     def push_ups(cls) -> int: # pylint: disable=no-self-argument
-        push_ups = cls.Match.MinPushUps + (cls.Match.MaxPushUps/2) / (cls.kda * cls.kill_participation)
+        push_ups = cls.MinPushUps + (cls.MaxPushUps/2) / (cls.kda * cls.kill_participation)
         return Case(
             None,
             [
-                ((cls.kill_participation==0,), cls.Match.MaxPushUps), # pylint: disable=comparison-with-callable
-                ((cls.kda==0,), cls.Match.MaxPushUps) # pylint: disable=comparison-with-callable
+                ((cls.kill_participation==0,), cls.MaxPushUps), # pylint: disable=comparison-with-callable
+                ((cls.kda==0,), cls.MaxPushUps) # pylint: disable=comparison-with-callable
             ],
             fn.ROUND(
                 Case(
                     None,
                     [
-                        ((push_ups>=cls.Match.MaxPushUps), cls.Match.MaxPushUps)
+                        ((push_ups>=cls.MaxPushUps), cls.MaxPushUps)
                     ],
                     push_ups
                 )

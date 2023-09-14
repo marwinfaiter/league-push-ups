@@ -9,6 +9,8 @@
             <th>Assists</th>
             <th>KDA</th>
             <th>Kill Participation</th>
+            <th>Minimum Push Ups</th>
+            <th>Maximum Push Ups</th>
             <th>Push Ups</th>
           </tr>
         </thead>
@@ -20,6 +22,8 @@
             <td class="text-warning">{{ player.Assists }}</td>
             <td>{{ format_number(player.kda) }}</td>
             <td>{{ format_number(player.kill_participation * 100) }}%</td>
+            <td>{{ player.MinPushUps }}</td>
+            <td>{{ player.MaxPushUps }}</td>
             <td class="text-info">{{ player.push_ups }}
               <font-awesome-icon v-if="player.PushUpsFinished" role="button" @click="toggle_player_pushups_finished(player)" :icon="['fas', 'check']" style="color: #2ff109;" />
               <font-awesome-icon v-else role="button" @click="toggle_player_pushups_finished(player)" :icon="['fas', 'ban']" style="color: #ff0000;" />
@@ -38,8 +42,7 @@
                   <th>Game ID</th>
                   <th>Game Start</th>
                   <th>Team Kills</th>
-                  <th>Minimum Push Ups</th>
-                  <th>Maximum Push Ups</th>
+
                 </tr>
               </thead>
               <tbody>
@@ -49,8 +52,6 @@
                   <td>{{ match.MatchID }}</td>
                   <td>{{ match.date_time }}</td>
                   <td>{{ match.TeamKills }}</td>
-                  <td>{{ match.MinPushUps }}</td>
-                  <td>{{ match.MaxPushUps }}</td>
                 </tr>
               </tbody>
             </table>

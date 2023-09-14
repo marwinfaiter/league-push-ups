@@ -1,19 +1,12 @@
-from flask import request
 from flask_login import login_required
 
 from . import Controller
 from ..models.database.match import Match
-from ..models.database.base_model import database
 
 class ClientMatchSettingsController(Controller):
     @login_required
     def post(self, session_id: str, match_id: int) -> None:
-        data = request.get_json()
-        assert isinstance(data, dict)
-        with database.atomic() as _:
-            Match.get_or_create(
-                Session=session_id,
-                MatchID=match_id,
-                MinPushUps=data["min_push_ups"],
-                MaxPushUps=data["max_push_ups"],
-            )
+        Match.get_or_create(
+            Session=session_id,
+            MatchID=match_id,
+        )

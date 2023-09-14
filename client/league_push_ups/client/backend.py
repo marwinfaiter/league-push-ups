@@ -32,12 +32,8 @@ class BackendClient:
     def send_match(self, session_id: int, game_id: int, match: Match) -> None:
         self.post(f"match/{session_id}/{game_id}", unstructure(match))
 
-    def send_match_settings(self, session_id: int, game_id: int, min_push_ups: int, max_push_ups: int) -> None:
-        payload = {
-            "min_push_ups": min_push_ups,
-            "max_push_ups": max_push_ups,
-        }
-        self.post(f"match_settings/{session_id}/{game_id}", payload)
+    def send_match_settings(self, session_id: int, game_id: int) -> None:
+        self.post(f"match_settings/{session_id}/{game_id}")
 
     def send_scores(self, session_id: int, game_id: int, scores: tuple[LiveScore, ...]) -> None:
         self.post(f"scores/{session_id}/{game_id}", [unstructure(score) for score in scores])
