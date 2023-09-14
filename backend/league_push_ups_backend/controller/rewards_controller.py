@@ -7,7 +7,6 @@ from . import Controller
 from ..models.database.reward import Reward
 
 class RewardsController(Controller):
-    @login_required
     def get(self) -> list[dict[str, Any]]:
         return list(Reward.select().order_by(Reward.push_ups).dicts())
 
@@ -29,3 +28,4 @@ class RewardsController(Controller):
         reward_id = request.get_json()
         assert isinstance(reward_id, int)
         Reward.get(reward_id).delete_instance()
+        return "", 200
