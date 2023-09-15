@@ -33,16 +33,16 @@ class ClientEventsController(Controller):
                         )
                 if event_model.EventName == "ChampionKill":
                     match.TeamKills += 1
-                    if killer := MatchPlayer.get_or_none(Match=match.id, SummonerName=event_model.KillerName)
+                    if killer := MatchPlayer.get_or_none(Match=match.id, SummonerName=event_model.KillerName):
                         killer.Kills += 1
                         killer.save()
 
-                    if victim := MatchPlayer.get_or_none(Match=match.id, SummonerName=event_model.VictimName)
+                    if victim := MatchPlayer.get_or_none(Match=match.id, SummonerName=event_model.VictimName):
                         victim.Deaths += 1
                         victim.save()
 
                     for assister in assisters:
-                        if assister_model := MatchPlayer.get_or_none(Match=match.id, SummonerName=assister)
+                        if assister_model := MatchPlayer.get_or_none(Match=match.id, SummonerName=assister):
                             assister_model.Assists += 1
                             assister_model.save()
             match.save()

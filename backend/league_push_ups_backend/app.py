@@ -81,7 +81,9 @@ def create_login_manager(app: Flask) -> LoginManager:
     return LoginManager(app)
 
 def user_loader(uid: str) -> Optional[User]:
-    return User.get_or_none(username=uid)
+    user = User.get_or_none(username=uid)
+    assert isinstance(user, User)
+    return user
 
 if __name__ == "__main__":
     flask_app = create_app()
