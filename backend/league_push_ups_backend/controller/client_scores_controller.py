@@ -22,14 +22,13 @@ class ClientScoresController(Controller):
             for score in scores:
                 try:
                     summoner = Summoner.get(name=score["summonerName"])
-                    if not summoner.user.active:
-                        continue
                     match_player, _ = MatchPlayer.get_or_create(
                         Match=match.id,
                         User=summoner.user.id,
                         SummonerName=score["summonerName"],
                         MinPushUps=summoner.user.minimum_push_ups,
                         MaxPushUps=summoner.user.maximum_push_ups,
+                        PushUpsFinished=summoner.user.active,
                     )
                     match_player.Kills = score["kills"]
                     match_player.Deaths = score["deaths"]
