@@ -9,121 +9,166 @@ pipeline {
                 sh "git clean -xdf"
             }
         }
-        stage("Run client tests") {
-            agent {
-                docker {
-                    image "python:3.11-slim"
-                    reuseNode true
-                }
-            }
-            environment {
-                HOME = "${env.WORKSPACE}"
-            }
-            stages {
-                stage("Install dependencies") {
-                    steps {
-                        sh "python -m pip install --user client/[test]"
+        stage("Run stages in parallel") {
+            parallel {
+                stage("Run client tests") {
+                    agent {
+                        docker {
+                            image "python:3.11-slim"
+                        }
                     }
-                }
-                stage("Run tests") {
+                    environment {
+                        HOME = "${env.WORKSPACE}"
+                    }
                     stages {
-                        stage("Run mypy") {
+                        stage("Install dependencies") {
                             steps {
-                                sh "python -m mypy client/league_push_ups client/tests"
+                                sh "python -m pip install --user client/[test]"
                             }
                         }
-                        stage("Run pylint") {
-                            steps {
-                                sh "python -m pylint client/league_push_ups client/tests"
+                        stage("Run tests") {
+                            stages {
+                                stage("Run mypy") {
+                                    steps {
+                                        sh "python -m mypy client/league_push_ups client/tests"
+                                    }
+                                }
+                                stage("Run pylint") {
+                                    steps {
+                                        sh "python -m pylint client/league_push_ups client/tests"
+                                    }
+                                }
+                                stage("Run pytest") {
+                                    steps {
+                                        sh "python -m pytest client/tests"
+                                    }
+                                }
                             }
                         }
-                        stage("Run pytest") {
+                        stage("Mark client success") {
                             steps {
-                                sh "python -m pytest client/tests"
+                                script {
+                                    env.CLIENT_SUCCESS = true
+                                }
                             }
                         }
                     }
                 }
-                stage("Build wheel") {
-                    steps {
-                        dir("client") {
-                            sh "python setup.py bdist_wheel"
+                stage("Run backend tests") {
+                    agent {
+                        dockerfile {
+                            dir "backend"
                         }
                     }
-                }
-                stage("Publish wheel") {
-                    when {
-                        branch 'main'
+                    environment {
+                        HOME = "${env.WORKSPACE}"
                     }
-                    steps {
-                        sh "python -m pip install --user twine"
-                        sh "python -m twine upload --repository-url https://nexus.buddaphest.se/repository/pypi-releases/ --u '${TWINE_CREDENTIALS_USR}' --p '${TWINE_CREDENTIALS_PSW}' client/dist/*"
-                    }
-                }
-            }
-        }
-        stage("Run backend tests") {
-            agent {
-                dockerfile {
-                    dir "backend"
-                    reuseNode true
-                }
-            }
-            environment {
-                HOME = "${env.WORKSPACE}"
-            }
-            stages {
-                stage("Install dependencies") {
-                    steps {
-                        sh "python -m pip install --user backend/[test]"
-                    }
-                }
-                stage("Run tests") {
                     stages {
-                        stage("Run mypy") {
+                        stage("Install dependencies") {
                             steps {
-                                sh "python -m mypy backend/league_push_ups_backend"
+                                sh "python -m pip install --user backend/[test]"
                             }
                         }
-                        stage("Run pylint") {
+                        stage("Run tests") {
+                            stages {
+                                stage("Run mypy") {
+                                    steps {
+                                        sh "python -m mypy backend/league_push_ups_backend"
+                                    }
+                                }
+                                stage("Run pylint") {
+                                    steps {
+                                        sh "python -m pylint backend/league_push_ups_backend"
+                                    }
+                                }
+                            }
+                        }
+                        stage("Mark backend success") {
                             steps {
-                                sh "python -m pylint backend/league_push_ups_backend"
+                                script {
+                                    env.BACKEND_SUCCESS = true
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
-        stage("Build and publish docker") {
-            stages {
-                stage("Backend") {
-                    when {
-                        branch 'main'
-                    }
-                    steps {
-                        script {
-                            docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {
-
-                                def customImage = docker.build("marwinfaiter/league_push_ups:backend-${env.BUILD_ID}", "--target prod backend")
-
-                                customImage.push()
-                                customImage.push("backend")
+                stage("Build and publish artifacts") {
+                    stages {
+                        stage("Wait for tests to finish") {
+                            steps {
+                                waitUntil(initialRecurrencePeriod: 5000) {
+                                    script {
+                                        echo env.CLIENT_SUCCESS
+                                        return env.CLIENT_SUCCESS && env.CLIENT_SUCCESS.toBoolean()
+                                    }
+                                }
+                                waitUntil(initialRecurrencePeriod: 5000) {
+                                    script {
+                                        echo env.BACKEND_SUCCESS
+                                        return env.BACKEND_SUCCESS && env.BACKEND_SUCCESS.toBoolean()
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-                stage("Frontend") {
-                    when {
-                        branch 'main'
-                    }
-                    steps {
-                        script {
-                            docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {
+                        stage("Client") {
+                            agent {
+                                docker {
+                                    image "python:3.11-slim"
+                                    reuseNode true
+                                }
+                            }
+                            environment {
+                                HOME = "${env.WORKSPACE}"
+                            }
+                            stages {
+                                stage("Build wheel") {
+                                    steps {
+                                        dir("client") {
+                                            sh "python setup.py bdist_wheel"
+                                        }
+                                    }
+                                }
+                                stage("Publish wheel") {
+                                    when {
+                                        branch 'main'
+                                    }
+                                    steps {
+                                        sh "python -m pip install --user twine"
+                                        sh "python -m twine upload --repository-url https://nexus.buddaphest.se/repository/pypi-releases/ --u '${TWINE_CREDENTIALS_USR}' --p '${TWINE_CREDENTIALS_PSW}' client/dist/*"
+                                    }
+                                }
+                            }
+                        }
+                        stage("Backend") {
+                            when {
+                                branch 'main'
+                            }
+                            steps {
+                                script {
+                                    docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {
 
-                                def customImage = docker.build("marwinfaiter/league_push_ups:frontend-${env.BUILD_ID}", "--target production-stage frontend")
+                                        def customImage = docker.build("marwinfaiter/league_push_ups:backend-${env.BUILD_ID}", "--target prod backend")
 
-                                customImage.push()
-                                customImage.push("frontend")
+                                        customImage.push()
+                                        customImage.push("backend")
+                                    }
+                                }
+                            }
+                        }
+                        stage("Frontend") {
+                            when {
+                                branch 'main'
+                            }
+                            steps {
+                                script {
+                                    docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {
+
+                                        def customImage = docker.build("marwinfaiter/league_push_ups:frontend-${env.BUILD_ID}", "--target production-stage frontend")
+
+                                        customImage.push()
+                                        customImage.push("frontend")
+                                    }
+                                }
                             }
                         }
                     }
