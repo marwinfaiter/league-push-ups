@@ -6,7 +6,6 @@ from flask_cors import CORS
 from flask_session import Session
 from flask_socketio import SocketIO
 from flask_login import LoginManager
-from peewee import DoesNotExist
 import redis
 from typing import Optional
 
