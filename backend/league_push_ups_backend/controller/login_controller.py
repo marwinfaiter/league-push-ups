@@ -2,7 +2,6 @@ from flask import request, session
 from flask_login import login_user, logout_user, current_user
 from flask_login.mixins import AnonymousUserMixin
 from typing import Union, Any
-from peewee import DoesNotExist
 from ..client.ldap import LDAPClient
 import ldap
 

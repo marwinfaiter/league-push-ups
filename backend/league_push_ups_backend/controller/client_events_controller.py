@@ -1,6 +1,5 @@
 from flask import request
 from flask_login import login_required
-from peewee import DoesNotExist
 
 from . import Controller
 from ..models.database.match import Match

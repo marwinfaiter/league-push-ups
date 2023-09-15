@@ -1,5 +1,4 @@
 from flask import request
-from peewee import DoesNotExist
 from flask_login import login_required
 
 from . import Controller
