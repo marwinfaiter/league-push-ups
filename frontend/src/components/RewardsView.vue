@@ -12,9 +12,9 @@
       </thead>
       <tbody>
         <tr v-for="reward in this.rewards" :key="reward.id">
-          <td><input :ref="`${reward.id}_name`" :placeholder="reward.name"/></td>
-          <td><input :ref="`${reward.id}_description`" :placeholder="reward.description"/></td>
-          <td><input :ref="`${reward.id}_push_ups`" :placeholder="reward.push_ups"/></td>
+          <td><input :ref="`${reward.id}_name`" :value="reward.name"/></td>
+          <td><input :ref="`${reward.id}_description`" :value="reward.description"/></td>
+          <td><input :ref="`${reward.id}_push_ups`" :value="reward.push_ups"/></td>
           <td><button type="button" @click="update_reward(reward.id)" class="btn btn-info">Update</button></td>
           <td><button type="button" @click="delete_reward(reward.id)" class="btn btn-danger">Delete</button></td>
         </tr>
