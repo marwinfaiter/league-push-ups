@@ -96,15 +96,13 @@ pipeline {
                     stages {
                         stage("Wait for tests to finish") {
                             steps {
-                                waitUntil(initialRecurrencePeriod: 5000) {
+                                waitUntil(initialRecurrencePeriod: 5000, quiet: true) {
                                     script {
-                                        echo env.CLIENT_SUCCESS
                                         return env.CLIENT_SUCCESS && env.CLIENT_SUCCESS.toBoolean()
                                     }
                                 }
-                                waitUntil(initialRecurrencePeriod: 5000) {
+                                waitUntil(initialRecurrencePeriod: 5000, quiet: true) {
                                     script {
-                                        echo env.BACKEND_SUCCESS
                                         return env.BACKEND_SUCCESS && env.BACKEND_SUCCESS.toBoolean()
                                     }
                                 }
