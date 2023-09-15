@@ -20,14 +20,8 @@ class ClientMatchController(Controller):
         match.TeamKills = match_data["team_kills"]
         match.save()
         for player in match_data["players"]:
-            try:
-                match_player = MatchPlayer.get(
-                    Match=match.id,
-                    SummonerName=player["summonerName"],
-                )
+            if match_player := MatchPlayer.get_or_none(Match=match.id, SummonerName=player["summonerName"]):
                 match_player.Kills = player["stats"]["CHAMPIONS_KILLED"]
                 match_player.Deaths = player["stats"]["NUM_DEATHS"]
                 match_player.Assists = player["stats"]["ASSISTS"]
                 match_player.save()
-            except DoesNotExist:
-                pass

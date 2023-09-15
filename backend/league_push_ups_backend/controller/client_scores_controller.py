@@ -20,8 +20,7 @@ class ClientScoresController(Controller):
             )
             match.TeamKills = sum(score["kills"] for score in scores)
             for score in scores:
-                try:
-                    summoner = Summoner.get(name=score["summonerName"])
+                if summoner := Summoner.get_or_none(name=score["summonerName"]):
                     match_player, _ = MatchPlayer.get_or_create(
                         Match=match.id,
                         User=summoner.user.id,
@@ -34,6 +33,4 @@ class ClientScoresController(Controller):
                     match_player.Deaths = score["deaths"]
                     match_player.Assists = score["assists"]
                     match_player.save()
-                except DoesNotExist:
-                    pass
             match.save()

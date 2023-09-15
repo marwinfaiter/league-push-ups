@@ -33,12 +33,9 @@ class LoginController(Controller):
             pass
 
         if isinstance(current_user, AnonymousUserMixin):
-            try:
-                api_key = APIKey.get(value=password)
+            if api_key := APIKey.get_or_none(value=password):
                 if api_key.user.username == username:
                     login_user(api_key.user)
-            except DoesNotExist:
-                pass
 
         if isinstance(current_user, User):
             return {
