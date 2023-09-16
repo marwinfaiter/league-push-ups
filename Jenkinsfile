@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    options {
+        parallelsAlwaysFailFast()
+    }
     environment {
         TWINE_CREDENTIALS = credentials("nexus")
     }
