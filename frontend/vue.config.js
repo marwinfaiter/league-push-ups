@@ -6,7 +6,8 @@ module.exports = defineConfig({
     proxy: {
       '/api': {
         target: 'http://backend:5000',
-        pathRewrite: {"^/api": ""}
+        pathRewrite: {"^/api": ""},
+        ws: true
       },
     },
   }

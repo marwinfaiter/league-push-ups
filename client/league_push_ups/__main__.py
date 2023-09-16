@@ -1,7 +1,8 @@
 from typing import Optional
 from json import loads
-from cattrs import structure
+from cattrs import structure, unstructure
 import asyncio
+from socketio import AsyncClient
 import requests.exceptions
 
 from lcu_driver import Connector
@@ -100,24 +101,34 @@ class LeaguePushUps:
     @staticmethod
     async def poll_game_data() -> None:
         print("Started polling live game")
+        sio = AsyncClient()
+        game_id = LeaguePushUps.game_id
+        await sio.connect("http://localhost:5000")
+        await sio.emit("join", game_id)
         while LeaguePushUps.game_id:
             try:
                 await asyncio.sleep(1)
                 events = LeaguePushUps.game_client.get_events()
                 new_events = events - LeaguePushUps.events
                 if new_events:
-                    LeaguePushUps.backend_client.send_events(
-                        LeaguePushUps.session_id,
-                        LeaguePushUps.game_id,
-                        new_events
-                    )
                     LeaguePushUps.events = LeaguePushUps.events | new_events
-                if any(event.EventName == EventName.CHAMPION_KILL for event in new_events):
-                    scores = LeaguePushUps.game_client.get_scores_for_team()
-                    LeaguePushUps.backend_client.send_scores(LeaguePushUps.session_id, LeaguePushUps.game_id, scores)
+
+                    payload = {
+                        "session_id": LeaguePushUps.session_id,
+                        "match_id": LeaguePushUps.game_id,
+                        "events": [unstructure(event) for event in new_events]
+                    }
+                    if any(event.EventName == EventName.CHAMPION_KILL for event in new_events):
+                        scores = LeaguePushUps.game_client.get_scores_for_team()
+                        payload["scores"] = [unstructure(score) for score in scores]
+
+                    await sio.emit("events", payload)
 
             except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
                 pass
+
+        await sio.emit("leave", game_id)
+        await sio.disconnect()
         LeaguePushUps.events.clear()
         print("Stopped polling live game")
 
