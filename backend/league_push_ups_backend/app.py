@@ -70,7 +70,7 @@ def create_cors(app: Flask) -> CORS:
     return CORS(app, expose_headers=["Content-Disposition"], supports_credentials=True)
 
 def create_socketio(app: Flask) -> SocketIO:
-    sio = SocketIO(app, logger=True, engineio_logger=True, debug=True)
+    sio = SocketIO(app, manage_session=False)
     sio.on_namespace(WebsocketController("/"))
     return sio
 

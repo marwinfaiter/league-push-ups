@@ -1,4 +1,5 @@
 from flask_socketio import Namespace, join_room, leave_room
+from flask_login import current_user
 
 from ..models.database.match import Match
 from ..models.database.match_player import MatchPlayer
@@ -15,6 +16,8 @@ class WebsocketController(Namespace):
         pass
 
     def on_events(self, data):
+        if not current_user.is_authenticated:
+            raise ConnectionAbortedError("You are not authenticated")
         assert isinstance(data, dict)
         session_id = data["session_id"]
         match_id = data["match_id"]

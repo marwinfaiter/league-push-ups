@@ -1,45 +1,44 @@
-from attrs import define, field
+from attrs import define
 from cattrs import unstructure
 from typing import Optional
-import requests
+from aiohttp import ClientSession
 from typing import Any
 
-from ..models.event import Event
 from ..models.match import Match
-from ..models.live_score import LiveScore
 
 @define
 class BackendClient:
     base_url: str
-    session: requests.Session = field(factory=requests.Session)
+    session: Optional[ClientSession] = None
 
-    def get(self, url: str) -> requests.Response:
-        response = self.session.get(f"{self.base_url}/{url}")
-        response.raise_for_status()
-        return response
+    async def __aenter__(self):
+        self.session = ClientSession()
+        return self
 
-    def post(self, url: str, data: Optional[Any]=None) -> requests.Response:
-        response = self.session.post(f"{self.base_url}/{url}", json=data)
-        response.raise_for_status()
-        return response
+    async def __aexit__(self, *_):
+        await self.session.close()
+        self.session = None
 
-    def login(self, username: str, password: str) -> None:
-        self.post("login", {"username": username, "password": password})
+    async def get(self, url: str):
+        async with self.session.get(f"{self.base_url}/{url}") as response:
+            response.raise_for_status()
+            return await response.json()
 
-    def send_events(self, session_id: int, game_id: int, events: set[Event]) -> None:
-        self.post(f"events/{session_id}/{game_id}", [unstructure(event) for event in events])
+    async def post(self, url: str, data: Optional[Any]=None):
+        async with self.session.post(f"{self.base_url}/{url}", json=data) as response:
+            response.raise_for_status()
+            return await response.json()
 
-    def send_match(self, session_id: int, game_id: int, match: Match) -> None:
-        self.post(f"match/{session_id}/{game_id}", unstructure(match))
+    async def login(self, username: str, password: str) -> None:
+        await self.post("login", {"username": username, "password": password})
 
-    def send_match_settings(self, session_id: int, game_id: int) -> None:
-        self.post(f"match_settings/{session_id}/{game_id}")
+    async def send_match(self, session_id: int, game_id: int, match: Match) -> None:
+        await self.post(f"match/{session_id}/{game_id}", unstructure(match))
 
-    def send_scores(self, session_id: int, game_id: int, scores: tuple[LiveScore, ...]) -> None:
-        self.post(f"scores/{session_id}/{game_id}", [unstructure(score) for score in scores])
+    async def send_match_settings(self, session_id: int, game_id: int) -> None:
+        await self.post(f"match_settings/{session_id}/{game_id}")
 
-    def get_session_id(self) -> int:
-        response = self.get("session")
-        session_id = response.json()
+    async def get_session_id(self) -> int:
+        session_id = await self.get("session")
         assert isinstance(session_id, int)
         return session_id

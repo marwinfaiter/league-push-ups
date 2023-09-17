@@ -22,8 +22,10 @@ from .client.backend import BackendClient
 from .models.event import Event
 from .models.event.event_name import EventName
 from .run_ws_patch import run_ws
+from .connector_start_patch import start
 
 Connection.run_ws = run_ws
+Connector.start = start
 
 connector = Connector()
 
@@ -46,7 +48,6 @@ class LeaguePushUps:
     @connector.close
     async def disconnect(_connection: Connection) -> None:
         print('The client have been closed!')
-        await connector.stop()
 
     @staticmethod
     @connector.ws.register("/lol-lobby/v2/lobby", event_types=("CREATE","UPDATE"))
@@ -86,11 +87,11 @@ class LeaguePushUps:
 
             LeaguePushUps.game_id = game_update.payload.id
             assert isinstance(LeaguePushUps.lobby, Lobby)
-            LeaguePushUps.backend_client.send_match_settings(
+            await LeaguePushUps.backend_client.send_match_settings(
                 LeaguePushUps.session_id,
                 LeaguePushUps.game_id,
             )
-            connector.loop.create_task(LeaguePushUps.poll_game_data())
+            await LeaguePushUps.poll_game_data()
         elif game_update.payload.gameState == GameState.TERMINATED:
             print("Game ended")
             LeaguePushUps.game_id = None
@@ -101,9 +102,9 @@ class LeaguePushUps:
     @staticmethod
     async def poll_game_data() -> None:
         print("Started polling live game")
-        sio = AsyncClient()
+        sio = AsyncClient(http_session=LeaguePushUps.backend_client.session)
         game_id = LeaguePushUps.game_id
-        await sio.connect("http://localhost:5000")
+        await sio.connect(LeaguePushUps.backend_client.base_url)
         await sio.emit("join", game_id)
         while LeaguePushUps.game_id:
             try:
@@ -149,20 +150,25 @@ class LeaguePushUps:
                 if LeaguePushUps.lobby.is_summoner_member(player.summonerName)
             ])
             if match.players:
-                LeaguePushUps.backend_client.send_match(
+                await LeaguePushUps.backend_client.send_match(
                     LeaguePushUps.session_id,
                     eog_stats_block.gameId,
                     match
                 )
 
+async def run(cli_args: CLIArgs):
+    async with BackendClient(cli_args.backend_url) as backend_client:
+        LeaguePushUps.backend_client = backend_client
+        await LeaguePushUps.backend_client.login(cli_args.username, cli_args.password)
+        LeaguePushUps.session_id = await LeaguePushUps.backend_client.get_session_id()
+        await connector.start()
 
 def main() -> None:
-    cli_args = CLIArgs().parse_args()
-    LeaguePushUps.backend_client = BackendClient(cli_args.backend_url)
-    LeaguePushUps.backend_client.login(cli_args.username, cli_args.password)
-    LeaguePushUps.session_id = LeaguePushUps.backend_client.get_session_id()
-    connector.start()
-
+    asyncio.run(
+        run(
+            CLIArgs().parse_args()
+        )
+    )
 
 if __name__ == "__main__":
     main()
