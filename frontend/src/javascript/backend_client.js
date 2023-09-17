@@ -3,7 +3,7 @@ import Swal from 'sweetalert2'
 
 export default class BackendClient {
     constructor() {
-        this.base_url = "/api"
+        this.base_url = process.env.VUE_APP_BACKEND_URL
     }
     async get(url) {
         return await axios({
