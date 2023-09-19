@@ -18,7 +18,6 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 /* add icons to the library */
 library.add(fas)
 
-
 import BackendClient from './javascript/backend_client';
 
 const app = createApp(App)

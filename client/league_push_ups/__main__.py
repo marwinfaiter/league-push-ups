@@ -86,11 +86,6 @@ class LeaguePushUps:
                 return
 
             LeaguePushUps.game_id = game_update.payload.id
-            assert isinstance(LeaguePushUps.lobby, Lobby)
-            await LeaguePushUps.backend_client.send_match_settings(
-                LeaguePushUps.session_id,
-                LeaguePushUps.game_id,
-            )
             await LeaguePushUps.poll_game_data()
         elif game_update.payload.gameState == GameState.TERMINATED:
             print("Game ended")
@@ -105,7 +100,15 @@ class LeaguePushUps:
         sio = AsyncClient(http_session=LeaguePushUps.backend_client.session)
         game_id = LeaguePushUps.game_id
         await sio.connect(LeaguePushUps.backend_client.base_url)
-        await sio.emit("join", game_id)
+        await sio.call("join", game_id)
+        await sio.call(
+            "game_start",
+            {
+                "session_id": LeaguePushUps.session_id,
+                "match_id": LeaguePushUps.game_id,
+                "players": ["Marwinfaiter"]
+            }
+        )
         while LeaguePushUps.game_id:
             try:
                 await asyncio.sleep(1)
@@ -115,7 +118,6 @@ class LeaguePushUps:
                     LeaguePushUps.events = LeaguePushUps.events | new_events
 
                     payload = {
-                        "session_id": LeaguePushUps.session_id,
                         "match_id": LeaguePushUps.game_id,
                         "events": [unstructure(event) for event in new_events]
                     }
@@ -128,7 +130,7 @@ class LeaguePushUps:
             except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
                 pass
 
-        await sio.emit("leave", game_id)
+        await sio.call("leave", game_id)
         await sio.disconnect()
         LeaguePushUps.events.clear()
         print("Stopped polling live game")

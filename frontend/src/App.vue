@@ -5,6 +5,7 @@
 
 <script>
   import NavBar from "./components/NavBar.vue";
+  import LiveGamesView from "./components/LiveGamesView.vue";
   import HistoryView from "./components/HistoryView.vue";
   import ProgressView from "./components/ProgressView.vue";
   import RewardsView from "./components/RewardsView.vue";
@@ -17,6 +18,11 @@
     data() {
         return {
             routes: [
+              {
+                name: "Live Games",
+                path: "/live_games",
+                component: LiveGamesView,
+              },
               {
                 name: "History",
                 path: "/history",

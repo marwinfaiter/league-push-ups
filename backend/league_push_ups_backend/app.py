@@ -7,6 +7,7 @@ from flask_session import Session
 from flask_socketio import SocketIO
 from flask_login import LoginManager
 import redis
+import os
 from typing import Optional
 
 from league_push_ups_backend.controller.websocket_controller import WebsocketController
@@ -70,7 +71,9 @@ def create_cors(app: Flask) -> CORS:
     return CORS(app, expose_headers=["Content-Disposition"], supports_credentials=True)
 
 def create_socketio(app: Flask) -> SocketIO:
-    sio = SocketIO(app, manage_session=False)
+    sio = SocketIO(app, manage_session=False, cors_allowed_origins=os.environ.get(
+        "PUBLIC_URL", "https://leaguepushups.buddaphest.se"
+    ))
     sio.on_namespace(WebsocketController("/"))
     return sio
 
