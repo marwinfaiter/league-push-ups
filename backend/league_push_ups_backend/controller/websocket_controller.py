@@ -104,20 +104,20 @@ class WebsocketController(Namespace):
         leave_room(room)
 
     def _emit_event_to_room(self, match: Match, room: Union[str, int]="frontend") -> None:
-        last_event_time = Event.select(
+        last_event = Event.select(
                 Event.EventTime
             ).where(
                 Event.Match == match.id, # type: ignore[attr-defined]
                 Event.EventName == "ChampionKill"
             ).order_by(
                 Event.EventTime.desc()
-        ).get_or_none() or 0
+        ).get_or_none()
 
         self.emit(
             "events",
             {
                 "match_id": match.MatchID,
-                "event_time": last_event_time,
+                "event_time": last_event.EventTime if last_event else 0,
                 "match_players": MatchPlayer.get_match_players(match.id) # type: ignore[attr-defined]
             },
             room=room
