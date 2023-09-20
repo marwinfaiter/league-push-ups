@@ -45,12 +45,7 @@ export default {
       };
     },
     async created() {
-      if (process.env.NODE_ENV == "development") {
-        this.socket = io("http://localhost:5000");
-      }
-      else if (process.env.NODE_ENV == "production") {
-        this.socket = io("https://leaguepushups.buddaphest.se", {path: "/api/socket.io"})
-      }
+      this.socket = io(process.env.VUE_APP_BACKEND_URL)
       this.socket.on("connect", this.on_connect);
       this.socket.on("live_games", this.on_live_games);
       this.socket.on("disconnect", this.on_disconnect);
