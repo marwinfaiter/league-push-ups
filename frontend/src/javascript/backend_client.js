@@ -3,7 +3,12 @@ import Swal from 'sweetalert2'
 
 export default class BackendClient {
     constructor() {
-        this.base_url = process.env.VUE_APP_BACKEND_URL
+        if (process.env.NODE_ENV == "development") {
+            this.base_url = "http://localhost:5000"
+        }
+        else if (process.env.NODE_ENV == "production") {
+            this.base_url = "https://leaguepushups.buddaphest.se/api"
+        }
     }
     async get(url) {
         return await axios({
