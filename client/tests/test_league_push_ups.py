@@ -2,18 +2,26 @@ from unittest import IsolatedAsyncioTestCase
 from mockito import expect, unstub, ANY, mock, verifyNoUnwantedInteractions
 from attrs import define
 from cattrs import structure
+from aiohttp import ClientSession
+
 from league_push_ups.__main__ import LeaguePushUps
 from league_push_ups.models.end_of_game.eog_stats_block import EOGStatsBlock
 from league_push_ups.models.lobby import Lobby
 from league_push_ups.models.lobby.member import Member
 from league_push_ups.models.lobby.game_mode import GameMode
 from league_push_ups.client.backend import BackendClient
+
+async def empty():
+    pass
+
 class TestLeaguePushUps(IsolatedAsyncioTestCase):
     def setUp(self) -> None:
         LeaguePushUps.session_id = 123
         LeaguePushUps.game_id = None
         LeaguePushUps.lobby = None
         LeaguePushUps.backend_client = mock(BackendClient)
+        LeaguePushUps.backend_client.base_url = "http://localhost"
+        LeaguePushUps.backend_client.session = mock(ClientSession)
 
     def tearDown(self) -> None:
         verifyNoUnwantedInteractions()
@@ -35,13 +43,13 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
         assert LeaguePushUps.lobby is None
 
     async def test_game_start(self) -> None:
-        expect(LeaguePushUps.backend_client).send_match_settings(ANY, ANY).thenReturn()
+        expect(LeaguePushUps).poll_game_data().thenReturn(empty())
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.game_update(None, ExampleGameStart())
         assert LeaguePushUps.game_id is not None
 
     async def test_game_end(self) -> None:
-        expect(LeaguePushUps.backend_client).send_match(ANY, ANY, ANY).thenReturn()
+        expect(LeaguePushUps.backend_client).send_match(ANY, ANY, ANY).thenReturn(empty())
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.game_end(None, ExampleGameEnd())
         await LeaguePushUps.game_update(None, ExampleGameEndUpdate())

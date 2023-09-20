@@ -158,7 +158,7 @@ class LeaguePushUps:
                     match
                 )
 
-async def run(cli_args: CLIArgs):
+async def run(cli_args: CLIArgs) -> None:
     async with BackendClient(cli_args.backend_url) as backend_client:
         LeaguePushUps.backend_client = backend_client
         await LeaguePushUps.backend_client.login(cli_args.username, cli_args.password)
