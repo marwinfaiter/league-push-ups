@@ -101,6 +101,8 @@ class LeaguePushUps:
         game_id = LeaguePushUps.game_id
         await sio.connect(LeaguePushUps.backend_client.base_url)
         await sio.call("join", game_id)
+
+        assert isinstance(LeaguePushUps.lobby, Lobby)
         await sio.call(
             "game_start",
             {
