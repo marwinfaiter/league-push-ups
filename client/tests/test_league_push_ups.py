@@ -11,7 +11,7 @@ from league_push_ups.models.lobby.member import Member
 from league_push_ups.models.lobby.game_mode import GameMode
 from league_push_ups.client.backend import BackendClient
 
-async def empty():
+async def empty() -> None:
     pass
 
 class TestLeaguePushUps(IsolatedAsyncioTestCase):
