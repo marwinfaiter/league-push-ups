@@ -71,7 +71,7 @@ export default {
       get_chart_data_by_game_id(game_id) {
         let players = {}
 
-        for (let event_time of Object.keys(this.events[game_id]).sort()) {
+        for (let event_time of Object.keys(this.events[game_id]).sort((a, b) => a-b)) {
           for (let player of this.events[game_id][event_time]) {
             players[player.SummonerName] ||= {};
             players[player.SummonerName]["push_ups"] ||= [];
@@ -85,7 +85,7 @@ export default {
         }
 
         return {
-          labels: Object.keys(this.events[game_id]).sort().map((event_time) => new Date(event_time * 1000).toISOString().substring(11,19)),
+          labels: Object.keys(this.events[game_id]).sort((a, b) => a-b).map((event_time) => new Date(event_time * 1000).toISOString().substring(11,19)),
           datasets: Object.keys(players).sort().map((summoner_name) => {
             return {
               data: players[summoner_name]["push_ups"],

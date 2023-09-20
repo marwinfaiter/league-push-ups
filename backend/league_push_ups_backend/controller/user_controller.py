@@ -7,6 +7,7 @@ from typing import Any
 from . import Controller
 
 class UserController(Controller):
+    @login_required
     def get(self) -> dict[str, Any]:
         return dict(model_to_dict(current_user))
 
