@@ -3,6 +3,8 @@ import peeweedbevolve as _
 from peewee import CharField, SmallIntegerField, ForeignKeyField, BooleanField, Case, fn
 from playhouse.hybrid import hybrid_property
 
+from typing import Any
+
 from .base_model import BaseModel
 from .match import Match
 from .user import User
@@ -84,4 +86,19 @@ class MatchPlayer(BaseModel):
                     push_ups
                 )
             )
+        )
+
+    @staticmethod
+    def get_match_players(match_id: int) -> list[dict[str, Any]]:
+        return list(
+            MatchPlayer.select(
+            MatchPlayer,
+            MatchPlayer.kda.cast("float").alias("kda"), # type: ignore[attr-defined] # pylint: disable=no-member
+            MatchPlayer.kill_participation.cast("float").alias("kill_participation"), # type: ignore[attr-defined] # pylint: disable=no-member
+            MatchPlayer.push_ups.cast("int").alias("push_ups") # type: ignore[attr-defined] # pylint: disable=no-member
+            ).join(
+                Match
+            ).where(
+                MatchPlayer.Match==match_id
+            ).dicts()
         )

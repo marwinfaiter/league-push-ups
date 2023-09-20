@@ -1,6 +1,7 @@
 from flask_socketio import Namespace, join_room, leave_room
 from flask_login import current_user
 from flask import request
+from typing import Any, Union
 
 from peewee import IntegrityError
 
@@ -12,44 +13,18 @@ from ..models.database.user.summoner import Summoner
 from ..models.database.base_model import database
 
 class WebsocketController(Namespace):
-    def on_connect(self):
+    def on_connect(self) -> None:
         pass
 
-    def on_disconnect(self):
+    def on_disconnect(self) -> None:
         pass
 
-    def on_get_live_games(self):
+    def on_get_live_games(self) -> None:
         for room in list(self.server.manager.rooms[self.namespace].keys()):
             if match := Match.get_or_none(Match.MatchID==room):
-                self.emit(
-                    "events",
-                    {
-                        "match_id": room,
-                        "event_time": Event.select(
-                                Event.EventTime
-                            ).where(
-                                Event.Match == match.id,
-                                Event.EventName == "ChampionKill"
-                            ).order_by(
-                                Event.EventTime.desc()
-                            ).get_or_none() or 0,
-                        "match_players": list(
-                            MatchPlayer.select(
-                                MatchPlayer,
-                                MatchPlayer.kda.cast("float").alias("kda"),
-                                MatchPlayer.kill_participation.cast("float").alias("kill_participation"),
-                                MatchPlayer.push_ups.cast("int").alias("push_ups")
-                            ).join(
-                                Match
-                            ).where(
-                                MatchPlayer.Match == match.id
-                            ).dicts()
-                        )
-                    },
-                    room=request.sid
-                )
+                self._emit_event_to_room(match, request.sid) # type: ignore[attr-defined]
 
-    def on_game_start(self, data):
+    def on_game_start(self, data: dict[str, Any]) -> None:
         if not current_user.is_authenticated:
             raise ConnectionAbortedError("You are not authenticated")
 
@@ -63,7 +38,7 @@ class WebsocketController(Namespace):
         for player in players:
             if summoner := Summoner.get_or_none(Summoner.name == player):
                 MatchPlayer.create(
-                    Match=match.id,
+                    Match=match.id, # pylint: disable=no-member
                     User=summoner.user.id,
                     SummonerName=player,
                     MinPushUps=summoner.user.minimum_push_ups,
@@ -71,28 +46,9 @@ class WebsocketController(Namespace):
                     PushUpsFinished=summoner.user.active,
                 )
 
-        self.emit(
-            "events",
-            {
-                "match_id": match_id,
-                "event_time": 0,
-                "match_players": list(
-                    MatchPlayer.select(
-                        MatchPlayer,
-                        MatchPlayer.kda.cast("float").alias("kda"),
-                        MatchPlayer.kill_participation.cast("float").alias("kill_participation"),
-                        MatchPlayer.push_ups.cast("int").alias("push_ups")
-                    ).join(
-                        Match
-                    ).where(
-                        MatchPlayer.Match == match.id
-                    ).dicts()
-                )
-            },
-            room="frontend"
-        )
+        self._emit_event_to_room(match)
 
-    def on_events(self, data):
+    def on_events(self, data: dict[str, Any]) -> None:
         if not current_user.is_authenticated:
             raise ConnectionAbortedError("You are not authenticated")
         assert isinstance(data, dict)
@@ -120,7 +76,7 @@ class WebsocketController(Namespace):
 
                 for assister in assisters:
                     Assister.get_or_create(
-                        Event=event_model.id,
+                        Event=event_model.id, # pylint: disable=no-member
                         Assister=assister
                     )
                 if event_model.EventName == "ChampionKill":
@@ -137,31 +93,32 @@ class WebsocketController(Namespace):
                             match_player.Assists += 1
                             match_player.save()
 
-                    self.emit(
-                        "events",
-                        {
-                            "match_id": match_id,
-                            "event_time": event_model.EventTime,
-                            "match_players": list(
-                                MatchPlayer.select(
-                                    MatchPlayer,
-                                    MatchPlayer.kda.cast("float").alias("kda"),
-                                    MatchPlayer.kill_participation.cast("float").alias("kill_participation"),
-                                    MatchPlayer.push_ups.cast("int").alias("push_ups")
-                                ).join(
-                                    Match
-                                ).where(
-                                    MatchPlayer.Match == match.id
-                                ).dicts()
-                            )
-                        },
-                        room="frontend"
-                    )
+                    self._emit_event_to_room(match)
 
-    def on_join(self, room):
+    def on_join(self, room: str) -> None:
         self.emit("join", room, room="frontend")
         join_room(room)
 
-    def on_leave(self, room):
+    def on_leave(self, room: str) -> None:
         self.emit("leave", room, room="frontend")
         leave_room(room)
+
+    def _emit_event_to_room(self, match: Match, room: Union[str, int]="frontend") -> None:
+        last_event_time = Event.select(
+                Event.EventTime
+            ).where(
+                Event.Match == match.id, # type: ignore[attr-defined]
+                Event.EventName == "ChampionKill"
+            ).order_by(
+                Event.EventTime.desc()
+        ).get_or_none() or 0
+
+        self.emit(
+            "events",
+            {
+                "match_id": match.MatchID,
+                "event_time": last_event_time,
+                "match_players": MatchPlayer.get_match_players(match.id) # type: ignore[attr-defined]
+            },
+            room=room
+        )
