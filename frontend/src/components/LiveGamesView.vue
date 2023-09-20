@@ -45,7 +45,7 @@ export default {
       };
     },
     async created() {
-      this.socket = io(process.env.VUE_APP_BACKEND_URL);
+      this.socket = io("https://leaguepushups.buddaphest.se/api");
       this.socket.on("connect", this.on_connect);
       this.socket.on("live_games", this.on_live_games);
       this.socket.on("disconnect", this.on_disconnect);
