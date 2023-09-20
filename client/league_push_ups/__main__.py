@@ -106,7 +106,7 @@ class LeaguePushUps:
             {
                 "session_id": LeaguePushUps.session_id,
                 "match_id": LeaguePushUps.game_id,
-                "players": ["Marwinfaiter"]
+                "players": [member.summonerName for member in LeaguePushUps.lobby.members]
             }
         )
         while LeaguePushUps.game_id:
