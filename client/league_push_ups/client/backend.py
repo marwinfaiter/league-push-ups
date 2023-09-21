@@ -12,9 +12,9 @@ class BackendClient:
     session: Session = Session()
     version: str = field()
     @version.default
-    def _get_version(self):
+    def _get_version(self) -> str:
         status = self.get_status()
-        return status["version"]
+        return str(status["version"])
 
     def get(self, url: str) -> Any:
         with self.session.get(f"{self.base_url}/{url}") as response:

@@ -58,6 +58,7 @@ setup(
             "pylint",
             "mockito",
             "types-requests",
+            "types-setuptools",
         ]
     }
 )
