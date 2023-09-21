@@ -58,7 +58,7 @@ class LeaguePushUps:
 
     @staticmethod
     @connector.ws.register("/lol-lobby/v2/lobby/members", event_types=("UPDATE",))
-    async def lobby_members_update(_: Connector, event: WebsocketEventResponse) -> None:
+    async def lobby_members_update(_connection: Connection, event: WebsocketEventResponse) -> None:
         if LeaguePushUps.lobby:
             print("Updating lobby members")
             LeaguePushUps.lobby.members = tuple(structure(member, Member) for member in event.data)
