@@ -1,23 +1,22 @@
 <template>
-  <form v-if="!this.store.state.login">
+  <form @submit.prevent="onSubmit">
     <div class="row">
-      <!-- User input -->
-      <div class="col">
-        <input type="text" v-model="username" placeholder="username" class="form-control" />
-      </div>
+      <template v-if="!this.store.state.login">
+        <!-- User input -->
+        <div class="col">
+          <input type="text" v-model="username" placeholder="username" class="form-control" />
+        </div>
 
-      <!-- Password input -->
-      <div class="col">
-        <input type="password" v-model="password" placeholder="password" class="form-control" />
-      </div>
+        <!-- Password input -->
+        <div class="col">
+          <input type="password" v-model="password" placeholder="password" class="form-control" />
+        </div>
+      </template>
 
       <!-- Submit button -->
-      <button @click="login" class="btn btn-primary col">Sign in</button>
+      <button v-if="this.store.state.login" class="btn btn-primary col">Sign out</button>
+      <button v-else class="btn btn-primary col">Sign in</button>
     </div>
-  </form>
-  <form v-else>
-      <!-- Submit button -->
-      <button @click="logout" class="btn btn-primary col">Sign out</button>
   </form>
 </template>
 
@@ -31,11 +30,23 @@ export default {
       }
     },
     methods: {
-      login() {
-        if (!this.username || !this.password) {
-          return
+      onSubmit() {
+        if (this.store.state.login) {
+          this.backend_client.logout()
+          .then(response => {
+            this.store.commit("set_login", null)
+            return response;
+          })
+          .catch(error => {
+            if (error.response) {
+              console.log(error.response.data);
+              console.log(error.response.status);
+              console.log(error.response.headers);
+            }
+          })
         }
-        this.backend_client.login(this.username, this.password)
+        else if(this.username && this.password) {
+          this.backend_client.login(this.username, this.password)
           .then(response => {
             if (response) {
               this.store.commit("set_login", response.data);
@@ -50,24 +61,7 @@ export default {
               console.log(error.response.headers);
             }
           })
-      },
-      logout() {
-        if (!this.store.state.login) {
-          return
         }
-
-        this.backend_client.logout()
-          .then(response => {
-            this.store.commit("set_login", null)
-            return response;
-          })
-          .catch(error => {
-            if (error.response) {
-              console.log(error.response.data);
-              console.log(error.response.status);
-              console.log(error.response.headers);
-            }
-          })
       }
     }
 }
@@ -78,6 +72,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 form {
-  margin-left: 10px;
+  margin-left: 20px;
 }
 </style>
