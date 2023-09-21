@@ -129,8 +129,8 @@ pipeline {
                                                 fileContentReplaceConfig(
                                                     configs: [
                                                         fileContentReplaceItemConfig(
-                                                        search: '(VERSION = )0\\.0\\.0',
-                                                        replace: '$10.0.${BUILD_ID}',
+                                                        search: '(VERSION = )"0\\.0\\.0"',
+                                                        replace: '$1"0.0.${BUILD_ID}"',
                                                         matchCount: 1,
                                                         verbose: false,
                                                         )
@@ -171,8 +171,8 @@ pipeline {
                                         fileContentReplaceConfig(
                                             configs: [
                                                 fileContentReplaceItemConfig(
-                                                search: '(VERSION = )0\\.0\\.0',
-                                                replace: '$10.0.${BUILD_ID}',
+                                                search: '(VERSION = )"0\\.0\\.0"',
+                                                replace: '$1"0.0.${BUILD_ID}"',
                                                 matchCount: 1,
                                                 verbose: false,
                                                 )
