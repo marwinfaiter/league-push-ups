@@ -1,4 +1,4 @@
-from attrs import define
+from attrs import define, field
 from cattrs import unstructure
 from typing import Optional
 from requests import Session
@@ -10,6 +10,11 @@ from ..models.match import Match
 class BackendClient:
     base_url: str
     session: Session = Session()
+    version: str = field()
+    @version.default
+    def _get_version(self):
+        status = self.get_status()
+        return status["version"]
 
     def get(self, url: str) -> Any:
         with self.session.get(f"{self.base_url}/{url}") as response:
@@ -31,3 +36,8 @@ class BackendClient:
         session_id = self.get("session")
         assert isinstance(session_id, int)
         return session_id
+
+    def get_status(self) -> dict[str, Any]:
+        status = self.get("status")
+        assert isinstance(status, dict)
+        return status

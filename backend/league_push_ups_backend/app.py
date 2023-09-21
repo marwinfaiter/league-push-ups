@@ -15,6 +15,7 @@ from league_push_ups_backend.controller.websocket_controller import WebsocketCon
 from league_push_ups_backend.controller.login_controller import LoginController
 from league_push_ups_backend.controller.logout_controller import LogoutController
 from league_push_ups_backend.controller.user_controller import UserController
+from league_push_ups_backend.controller.status_controller import StatusController
 from league_push_ups_backend.controller.api_keys_controller import APIKeysController
 from league_push_ups_backend.controller.rewards_controller import RewardsController
 from league_push_ups_backend.controller.summoners_controller import SummonersController
@@ -49,6 +50,7 @@ def create_app() -> Flask:
     app.config['SESSION_REDIS'] = redis.from_url('redis://redis:6379')
     Session(app)
 
+    api.add_resource(StatusController, "/status")
     api.add_resource(LoginController, "/login")
     api.add_resource(LogoutController, "/logout")
     api.add_resource(UserController, "/user")
