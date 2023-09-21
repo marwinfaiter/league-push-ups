@@ -32,6 +32,7 @@ setup(
             "types-requests",
             "types-Flask-Cors",
             "types-peewee",
+            "types-setuptools",
         ]
     }
 )
