@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
-import os
+
+VERSION = "0.0.0"
 
 setup(
     name="league-push-ups",
-    version=f"0.0.{os.environ.get('BUILD_ID', 1)}",
+    version=VERSION,
     description='Program thats monitors League of Legends games and sends it to a backend',
     long_description='',
     keywords='LoL Push-ups',

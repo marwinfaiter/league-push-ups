@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
-import os
+
+VERSION = "0.0.0"
 
 setup(
     name='league-push-ups-backend',
-    version=f'0.0.{os.environ.get("BUILD_ID", 1)}',
+    version=VERSION,
     packages=find_packages(include=["league_push_ups_backend", "league_push_ups_backend.*"]),
     install_requires=[
         "requests",

@@ -4,7 +4,7 @@ from cattrs import structure, unstructure
 import asyncio
 from socketio import AsyncClient
 import requests.exceptions
-import pkg_resources
+from pkg_resources import get_distribution
 
 from lcu_driver import Connector
 from lcu_driver.connection import Connection
@@ -25,6 +25,8 @@ from .models.event.event_name import EventName
 from .run_ws_patch import run_ws
 from .connector_start_patch import start
 
+__version__ = get_distribution("league_push_ups").version
+
 Connection.run_ws = run_ws
 Connector.start = start
 
@@ -37,7 +39,6 @@ class LeaguePushUps:
     game_id: Optional[int] = None
     events: set[Event] = set()
     game_client: GameClient = GameClient()
-    version: str = pkg_resources.require("league_push_ups")[0].version
 
     # fired when LCU API is ready to be used
     @staticmethod
@@ -164,11 +165,10 @@ class LeaguePushUps:
 
     @staticmethod
     def print_versions() -> None:
-        print(f"League Push Ups client version: {LeaguePushUps.version}")
+        print(f"League Push Ups client version: {__version__}")
         print(f"League Push Ups backend version: {LeaguePushUps.backend_client.version}")
 
 def main() -> None:
-
     cli_args = CLIArgs().parse_args()
     LeaguePushUps.backend_client = BackendClient(cli_args.backend_url)
     LeaguePushUps.print_versions()
