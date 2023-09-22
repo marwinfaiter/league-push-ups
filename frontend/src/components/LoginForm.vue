@@ -1,21 +1,18 @@
 <template>
-  <form @submit.prevent="onSubmit">
-    <div class="row">
-      <template v-if="!this.store.state.login">
-        <!-- User input -->
-        <div class="col">
-          <input type="text" v-model="username" placeholder="username" class="form-control" required/>
+  <form class="col-md-10" @submit.prevent="onSubmit">
+    <div v-if="!this.store.state.login" class="row g-1 justify-content-end">
+        <div class="col-md-4">
+          <input type="text" v-model="username" placeholder="username" class="form-control" required>
         </div>
-
-        <!-- Password input -->
-        <div class="col">
-          <input type="password" v-model="password" placeholder="password" class="form-control" required/>
+        <div class="col-md-4">
+          <input type="password" v-model="password" placeholder="password" class="form-control" required>
         </div>
-      </template>
-
-      <!-- Submit button -->
-      <button v-if="this.store.state.login" class="btn btn-primary col">Sign out</button>
-      <button v-else class="btn btn-primary col">Sign in</button>
+        <div class="col-md-3">
+          <button class="btn btn-primary">Sign in</button>
+        </div>
+    </div>
+    <div>
+      <button v-if="this.store.state.login" class="btn btn-primary">Sign out</button>
     </div>
   </form>
 </template>
@@ -34,7 +31,9 @@ export default {
         if (this.store.state.login) {
           this.backend_client.logout()
           .then(response => {
-            this.store.commit("set_login", null)
+            this.store.commit("set_login", null);
+            this.username = "";
+            this.password = "";
             return response;
           })
           .catch(error => {
@@ -71,7 +70,4 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-form {
-  margin-left: 20px;
-}
 </style>

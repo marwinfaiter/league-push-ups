@@ -14,18 +14,22 @@
       </div>
     </div>
     <div class="navbar-nav me-auto">
-      <div v-if="this.store.state.login" class="dropdown">
-        <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <font-awesome-icon :icon="['fas', 'user']" />
-        </button>
-        <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
-          <router-link to="/user/settings" class="nav-link">Settings</router-link>
-          <router-link to="/user/api_keys" class="nav-link">API Keys</router-link>
-          <router-link to="/user/summoners" class="nav-link">Summoners</router-link>
-          <router-link v-if="this.store.state.login.groups.includes('leaguepushups-admins')" to="/rewards" class="nav-link">Rewards</router-link>
+      <div class="container">
+        <div class="row justify-content-end">
+          <div v-if="this.store.state.login" class="dropdown col-md-2">
+            <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <font-awesome-icon :icon="['fas', 'user']" />
+            </button>
+            <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton">
+              <router-link to="/user/settings" class="nav-link">Settings</router-link>
+              <router-link to="/user/api_keys" class="nav-link">API Keys</router-link>
+              <router-link to="/user/summoners" class="nav-link">Summoners</router-link>
+              <router-link v-if="this.store.state.login.groups.includes('leaguepushups-admins')" to="/rewards" class="nav-link">Rewards</router-link>
+            </div>
+          </div>
+          <LoginForm/>
         </div>
       </div>
-      <LoginForm/>
     </div>
   </nav>
 </template>
@@ -46,7 +50,6 @@ export default {
 .navbar {
   width: 100%;
   padding-left: 10px;
-  padding-right: 30px;
   text-align: center;
 }
 
