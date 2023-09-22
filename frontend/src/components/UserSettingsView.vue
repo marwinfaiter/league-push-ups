@@ -20,7 +20,7 @@
           </td>
           <td><input v-model="minimum_push_ups"/></td>
           <td><input v-model="maximum_push_ups"/></td>
-          <td><button type="button" @click="update_settings()" class="btn btn-sm btn-danger">Update</button></td>
+          <td><button type="button" @click="update_settings()" class="btn btn-sm btn-info">Update</button></td>
         </tr>
       </tbody>
     </table>

@@ -4,12 +4,12 @@
       <template v-if="!this.store.state.login">
         <!-- User input -->
         <div class="col">
-          <input type="text" v-model="username" placeholder="username" class="form-control" />
+          <input type="text" v-model="username" placeholder="username" class="form-control" required/>
         </div>
 
         <!-- Password input -->
         <div class="col">
-          <input type="password" v-model="password" placeholder="password" class="form-control" />
+          <input type="password" v-model="password" placeholder="password" class="form-control" required/>
         </div>
       </template>
 
@@ -45,7 +45,7 @@ export default {
             }
           })
         }
-        else if(this.username && this.password) {
+        else {
           this.backend_client.login(this.username, this.password)
           .then(response => {
             if (response) {
