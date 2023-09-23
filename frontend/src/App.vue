@@ -5,6 +5,7 @@
 
 <script>
   import NavBar from "./components/NavBar.vue";
+  import HomePageView from "./components/HomePageView.vue";
   import LiveGamesView from "./components/LiveGamesView.vue";
   import HistoryView from "./components/HistoryView.vue";
   import ProgressView from "./components/ProgressView.vue";
@@ -18,6 +19,11 @@
     data() {
         return {
             routes: [
+              {
+                name: "Home Page",
+                path: "/",
+                component: HomePageView,
+              },
               {
                 name: "Live Games",
                 path: "/live_games",
@@ -36,7 +42,10 @@
               {
                 name: "Rewards",
                 path: "/rewards",
-                component: RewardsView
+                component: RewardsView,
+                meta: {
+                  requiresAuth: true
+                }
               },
               {
                 name: "Settings",
