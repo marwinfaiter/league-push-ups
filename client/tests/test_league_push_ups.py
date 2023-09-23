@@ -49,7 +49,7 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
         assert LeaguePushUps.game_id is not None
 
     async def test_game_end(self) -> None:
-        expect(LeaguePushUps.backend_client).send_match(ANY, ANY, ANY).thenReturn()
+        expect(LeaguePushUps.backend_client).send_match(ANY, ANY, ANY).thenReturn(empty())
         await LeaguePushUps.lobby_create(None, ExampleLobby())
         await LeaguePushUps.game_end(None, ExampleGameEnd())
         await LeaguePushUps.game_update(None, ExampleGameEndUpdate())
