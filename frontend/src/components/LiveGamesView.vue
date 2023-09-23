@@ -3,7 +3,7 @@
     <div v-for="game_id in Object.keys(this.events)" :key="game_id" class="card">
       <div class="card-header">{{ game_id }}</div>
       <div class="card-body">
-        <Line :id="game_id" :options="get_chart_options()" :data="get_chart_data_by_game_id(game_id)"></Line>
+        <Line :id="game_id" :options="this.chart_options" :data="get_chart_data_by_game_id(game_id)"></Line>
       </div>
     </div>
   </div>
@@ -14,7 +14,6 @@ import io from "socket.io-client";
 
 import {
   Chart as ChartJS,
-  Colors,
   CategoryScale,
   LinearScale,
   PointElement,
@@ -27,7 +26,6 @@ import { Line } from 'vue-chartjs'
 
 ChartJS.register(
   CategoryScale,
-  Colors,
   LinearScale,
   PointElement,
   LineElement,
@@ -41,7 +39,24 @@ export default {
     components: { Line },
     data() {
       return {
-        events: {}
+        events: {},
+        chart_options: {
+          responsive: true,
+          scales: {
+              y: {
+                  ticks: {
+                      precision: 0
+                  }
+              }
+          }
+        },
+        colors: [
+          "rgba(0,130,0,0.8)",
+          "rgba(0,0,130,0.8)",
+          "rgba(130,0,0,0.8)",
+          "rgba(130,130,0,0.8)",
+          "rgba(0,130,130,0.8)",
+        ]
       };
     },
     async created() {
@@ -79,34 +94,28 @@ export default {
             players[player.SummonerName]["kills"] = player.Kills;
             players[player.SummonerName]["deaths"] = player.Deaths;
             players[player.SummonerName]["assists"] = player.Assists;
-            players[player.SummonerName]["kda"] = player.kda;
-            players[player.SummonerName]["kill_participation"] = player.kill_participation;
+            players[player.SummonerName]["kda"] = this.format_number(player.kda);
+            players[player.SummonerName]["kill_participation"] = this.format_number(player.kill_participation);
           }
         }
 
         return {
           labels: Object.keys(this.events[game_id]).sort((a, b) => a-b).map((event_time) => new Date(event_time * 1000).toISOString().substring(11,19)),
-          datasets: Object.keys(players).sort().map((summoner_name) => {
+          datasets: Object.keys(players).sort().map((summoner_name, index) => {
             return {
               data: players[summoner_name]["push_ups"],
+              borderColor: this.colors[index],
+              tension: 0.3,
               label: `${summoner_name} (${players[summoner_name]["kills"]}/${players[summoner_name]["deaths"]}/${players[summoner_name]["assists"]}) (${players[summoner_name]["kda"]}/${players[summoner_name]["kill_participation"] * 100}%)`
             }
-          })
+          }),
         }
       },
-      get_chart_options() {
-        return {
-          responsive: true,
-          scales: {
-              y: {
-                  ticks: {
-                      precision: 0
-                  }
-              }
-          }
-        }
-      }
+      format_number(number) {
+        return parseFloat(number).toFixed(2);
+      },
     }
+
 }
 
 </script>
