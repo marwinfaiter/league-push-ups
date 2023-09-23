@@ -170,7 +170,7 @@ class LeaguePushUps:
         backend_status = await LeaguePushUps.backend_client.get_status()
         print(f"League Push Ups backend version: {backend_status['version']}")
 
-async def run():
+async def run() -> None:
     cli_args = CLIArgs().parse_args()
     try:
         async with ClientSession() as session:
