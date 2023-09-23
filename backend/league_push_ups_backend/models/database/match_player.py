@@ -100,5 +100,7 @@ class MatchPlayer(BaseModel):
                 Match
             ).where(
                 MatchPlayer.Match==match_id
+            ).order_by(
+                MatchPlayer.SummonerName
             ).dicts()
         )
