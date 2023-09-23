@@ -4,6 +4,7 @@ from cattrs import structure, unstructure
 import asyncio
 from socketio import AsyncClient
 import requests.exceptions
+from aiohttp import ClientSession
 from pkg_resources import get_distribution
 
 from lcu_driver import Connector
@@ -124,7 +125,7 @@ class LeaguePushUps:
 
                     payload = {
                         "match_id": LeaguePushUps.game_id,
-                        "events": [unstructure(event) for event in new_events]
+                        "events": [unstructure(event) for event in sorted(new_events, key=lambda x: x.EventTime)]
                     }
                     if any(event.EventName == EventName.CHAMPION_KILL for event in new_events):
                         scores = LeaguePushUps.game_client.get_scores_for_team()
@@ -157,24 +158,32 @@ class LeaguePushUps:
                 if LeaguePushUps.lobby.is_summoner_member(player.summonerName)
             ])
             if match.players:
-                LeaguePushUps.backend_client.send_match(
+                await LeaguePushUps.backend_client.send_match(
                     LeaguePushUps.session_id,
                     eog_stats_block.gameId,
                     match
                 )
 
     @staticmethod
-    def print_versions() -> None:
+    async def print_versions() -> None:
         print(f"League Push Ups client version: {__version__}")
-        print(f"League Push Ups backend version: {LeaguePushUps.backend_client.version}")
+        backend_status = await LeaguePushUps.backend_client.get_status()
+        print(f"League Push Ups backend version: {backend_status['version']}")
+
+async def run():
+    cli_args = CLIArgs().parse_args()
+    try:
+        async with ClientSession() as session:
+            LeaguePushUps.backend_client = BackendClient(cli_args.backend_url, session)
+            await LeaguePushUps.print_versions()
+            await LeaguePushUps.backend_client.login(cli_args.username, cli_args.password)
+            LeaguePushUps.session_id = await LeaguePushUps.backend_client.get_session_id()
+            await connector.start()
+    except (KeyboardInterrupt, asyncio.exceptions.CancelledError):
+        print("Client stopped")
 
 def main() -> None:
-    cli_args = CLIArgs().parse_args()
-    LeaguePushUps.backend_client = BackendClient(cli_args.backend_url)
-    LeaguePushUps.print_versions()
-    LeaguePushUps.backend_client.login(cli_args.username, cli_args.password)
-    LeaguePushUps.session_id = LeaguePushUps.backend_client.get_session_id()
-    asyncio.run(connector.start())
+    asyncio.run(run())
 
 if __name__ == "__main__":
     main()
