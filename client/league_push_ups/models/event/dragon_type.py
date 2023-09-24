@@ -8,6 +8,7 @@ class DragonType(Enum):
     WATER = "Water"
     FIRE = "Fire"
     CHEMTECH = "Chemtech"
+    HEXTECH = "Hextech"
     ICE = "Ice"
     SPIRIT = "Spirit"
     STORM = "Storm"
