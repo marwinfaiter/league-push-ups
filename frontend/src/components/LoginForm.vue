@@ -34,6 +34,7 @@ export default {
             this.store.commit("set_login", null);
             this.username = "";
             this.password = "";
+            this.$router.go("/")
             return response;
           })
           .catch(error => {
