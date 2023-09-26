@@ -25,7 +25,7 @@
             <td>{{ player.MinPushUps }}</td>
             <td>{{ player.MaxPushUps }}</td>
             <td class="text-info">{{ player.push_ups }}
-              <font-awesome-icon v-if="player.PushUpsFinished" role="button" @click="toggle_player_pushups_finished(player)" :icon="['fas', 'check']" style="color: #2ff109;" />
+              <font-awesome-icon v-if="player.Active" role="button" @click="toggle_player_pushups_finished(player)" :icon="['fas', 'check']" style="color: #2ff109;" />
               <font-awesome-icon v-else role="button" @click="toggle_player_pushups_finished(player)" :icon="['fas', 'ban']" style="color: #ff0000;" />
             </td>
           </tr>
@@ -105,7 +105,7 @@ export default {
             });
           }
 
-          if (!this.store.state.login.groups.includes("leaguepushups-admins") && !player.PushUpsFinished) {
+          if (!this.store.state.login.groups.includes("leaguepushups-admins") && !player.Active) {
             return this.$swal({
                 title: "You are not allowed to mark as done again",
                 icon: "warning",
@@ -113,7 +113,7 @@ export default {
           }
 
           return this.$swal({
-            title: `Mark push ups as ${player.PushUpsFinished ? "undone": "done"}?`,
+            title: `Mark push ups as ${player.Active ? "undone": "done"}?`,
             text: "Are you sure? You won't be able to revert this!",
             type: "warning",
             showCancelButton: true,

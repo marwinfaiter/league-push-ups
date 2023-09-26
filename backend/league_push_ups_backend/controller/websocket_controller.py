@@ -43,7 +43,7 @@ class WebsocketController(Namespace):
                     SummonerName=player,
                     MinPushUps=summoner.user.minimum_push_ups,
                     MaxPushUps=summoner.user.maximum_push_ups,
-                    PushUpsFinished=summoner.user.active,
+                    Active=summoner.user.active,
                 )
 
         self._emit_event_to_room(match)

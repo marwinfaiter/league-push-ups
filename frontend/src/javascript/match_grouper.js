@@ -62,7 +62,7 @@ export default class MatchGrouper {
         return this.matches.map(match => match.KillParticipation).reduce((a, b) => a + b) / this.matches.length
     }
     get push_ups() {
-        return this.matches.map(match => {return match.PushUpsFinished ? match.PushUps : 0}).reduce((a, b) => a + b);
+        return this.matches.map(match => {return match.Active ? match.PushUps : 0}).reduce((a, b) => a + b);
     }
     get avg_push_ups() {
         return this.push_ups / this.matches.length;

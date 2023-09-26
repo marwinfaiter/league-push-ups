@@ -11,11 +11,11 @@ class FrontendMatchPlayerTogglePushupsFinishedController(Controller):
         if any([
             all([
                 match_player.SummonerName in session["summoners"],
-                match_player.PushUpsFinished is True,
+                match_player.Active is True,
             ]),
             "leaguepushups-admins" in session["groups"],
         ]):
-            match_player.PushUpsFinished ^= True
+            match_player.Active ^= True
             match_player.save()
             return "", 200
 

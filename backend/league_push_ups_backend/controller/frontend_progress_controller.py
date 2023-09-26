@@ -21,7 +21,7 @@ class FrontendProgressController(Controller):
             MatchPlayer.Kills,
             MatchPlayer.Deaths,
             MatchPlayer.Assists,
-            MatchPlayer.PushUpsFinished,
+            MatchPlayer.Active,
             MatchPlayer.kda.cast("float").alias("KDA"), # type: ignore[attr-defined] # pylint: disable=no-member
             MatchPlayer.kill_participation.cast("float").alias("KillParticipation"), # type: ignore[attr-defined] # pylint: disable=no-member
             MatchPlayer.push_ups.cast("int").alias("PushUps"), # type: ignore[attr-defined] # pylint: disable=no-member

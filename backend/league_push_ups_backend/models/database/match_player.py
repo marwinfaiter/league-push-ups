@@ -18,7 +18,7 @@ class MatchPlayer(BaseModel):
     Assists = SmallIntegerField(default=0)
     MinPushUps = SmallIntegerField(default=10)
     MaxPushUps = SmallIntegerField(default=50)
-    PushUpsFinished = BooleanField(default=True)
+    Active = BooleanField(default=True, aka="PushUpsFinished")
 
     class Meta:
         indexes = (
