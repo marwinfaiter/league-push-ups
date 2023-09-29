@@ -61,6 +61,5 @@ router.beforeEach((to, from, next) => {
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(router)
-app.use(Vuex)
 app.use(VueSweetalert2)
 app.mount('#app')
