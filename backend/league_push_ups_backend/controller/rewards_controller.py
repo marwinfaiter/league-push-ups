@@ -17,7 +17,7 @@ class RewardsController(Controller):
     @login_required
     def post(self, reward_id: Optional[int]=None) -> tuple[str, int]:
         if "leaguepushups-admins" not in session["groups"]:
-            return "You're not allowed to create new rewards", 401
+            return "You're not allowed to create new rewards", 403
         data = request.get_json()
         assert isinstance(data, dict)
         try:
@@ -36,6 +36,6 @@ class RewardsController(Controller):
     @login_required
     def delete(self, reward_id: Optional[int]=None) -> tuple[str, int]:
         if "leaguepushups-admins" not in session["groups"]:
-            return "You're not allowed to delete rewards", 401
+            return "You're not allowed to delete rewards", 403
         Reward.get(reward_id).delete_instance()
         return "", 200

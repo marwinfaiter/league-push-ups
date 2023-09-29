@@ -2,8 +2,9 @@ import axios from "axios"
 import Swal from 'sweetalert2'
 
 export default class BackendClient {
-    constructor() {
-        this.base_url = process.env.VUE_APP_BACKEND_URL
+    constructor(store) {
+        this.base_url = process.env.VUE_APP_BACKEND_URL;
+        this.store = store;
     }
     async get(url) {
         return await axios({
@@ -15,9 +16,12 @@ export default class BackendClient {
             },
             withCredentials: true,
         }).catch(error => {
+            if (error.response.status == 401) {
+                this.store.commit("set_login", false)
+            }
             if (error.response) {
                 new Swal({
-                    text: error.response.data,
+                    text: error.response.data.message ? error.response.data.message : error.response.data,
                     icon: "error",
                 });
             }
@@ -34,9 +38,12 @@ export default class BackendClient {
             data: data,
             withCredentials: true,
         }).catch(error => {
+            if (error.response.status == 401) {
+                this.store.commit("set_login", false)
+            }
             if (error.response) {
                 new Swal({
-                    text: error.response.data,
+                    text: error.response.data.message ? error.response.data.message : error.response.data,
                     icon: "error",
                 });
             }
@@ -63,9 +70,20 @@ export default class BackendClient {
     }
     async login(username, password) {
         return this.post("login", {username, password})
+        .then(response => {
+            console.log(response)
+            if (response) {
+                this.store.commit("set_login", response.data);
+                return response;
+            }
+        })
     }
     async logout() {
         return this.post("logout")
+        .then(response => {
+            this.store.commit("set_login", null);
+            return response;
+        })
     }
     async toggle_player_pushups_finished(match_player_id) {
         return this.post(`match_player/${match_player_id}/toggle_pushups_finished`)

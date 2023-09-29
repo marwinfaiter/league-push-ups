@@ -22,8 +22,6 @@ import BackendClient from './javascript/backend_client';
 
 const app = createApp(App)
 
-app.config.globalProperties.backend_client = new BackendClient()
-
 const router = createRouter({
     history: createWebHashHistory(),
     routes: App.data().routes
@@ -42,6 +40,8 @@ const store = new Vuex.Store({
         }
     }
 });
+
+app.config.globalProperties.backend_client = new BackendClient(store)
 
 app.config.globalProperties.store = store
 

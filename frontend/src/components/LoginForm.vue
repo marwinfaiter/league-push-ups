@@ -27,40 +27,15 @@ export default {
       }
     },
     methods: {
-      onSubmit() {
+      async onSubmit() {
         if (this.store.state.login) {
-          this.backend_client.logout()
-          .then(response => {
-            this.store.commit("set_login", null);
-            this.username = "";
-            this.password = "";
-            this.$router.go("/")
-            return response;
-          })
-          .catch(error => {
-            if (error.response) {
-              console.log(error.response.data);
-              console.log(error.response.status);
-              console.log(error.response.headers);
-            }
-          })
+          await this.backend_client.logout()
+          this.username = "";
+          this.password = "";
+          this.$router.go("/")
         }
         else {
-          this.backend_client.login(this.username, this.password)
-          .then(response => {
-            if (response) {
-              this.store.commit("set_login", response.data);
-              return response;
-            }
-          })
-          .catch(error => {
-            this.store.commit("set_login", false)
-            if (error.response) {
-              console.log(error.response.data);
-              console.log(error.response.status);
-              console.log(error.response.headers);
-            }
-          })
+          await this.backend_client.login(this.username, this.password)
         }
       }
     }
