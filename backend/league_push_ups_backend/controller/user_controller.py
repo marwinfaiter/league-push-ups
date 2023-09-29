@@ -18,7 +18,7 @@ class UserController(Controller):
 
         with database.atomic() as _:
             if username:
-                users = User.get(User.username==username)
+                users = User.select().where(User.username==username)
             else:
                 users = User.select()
 

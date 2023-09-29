@@ -105,7 +105,12 @@ export default {
     },
     methods: {
       async getData() {
-        this.user_settings = await this.backend_client.get(`user`).then(response => response.data);
+        if (this.store.state.login.groups.includes("leaguepushups-admins")) {
+          this.user_settings = await this.backend_client.get(`user`).then(response => response.data);
+        }
+        else {
+          this.user_settings = await this.backend_client.get(`user/${this.current_user}`).then(response => response.data);
+        }
       },
       async update_settings(username) {
         await this.backend_client.post(`user/${username}`, this.user_settings[this.current_user].settings).then(response => {
