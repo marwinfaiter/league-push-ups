@@ -71,7 +71,6 @@ export default class BackendClient {
     async login(username, password) {
         return this.post("login", {username, password})
         .then(response => {
-            console.log(response)
             if (response) {
                 this.store.commit("set_login", response.data);
                 return response;
