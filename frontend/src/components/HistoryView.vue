@@ -34,27 +34,28 @@
       <div class="modal" :id="'match_modal_' + match.id">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
-            <table class="table table-borderless table-sm table-hover rounded" style="overflow: hidden; margin: 0">
-              <thead class="table-light">
-                <tr>
-                  <th>Session ID</th>
-                  <th>Session Start</th>
-                  <th>Game ID</th>
-                  <th>Game Start</th>
-                  <th>Team Kills</th>
-
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{ match.Session.id }}</td>
-                  <td>{{ match.Session.date_time }}</td>
-                  <td>{{ match.MatchID }}</td>
-                  <td>{{ match.date_time }}</td>
-                  <td>{{ match.TeamKills }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="modal-body">
+              <table class="table table-borderless table-sm table-hover rounded" style="overflow: hidden; margin: 0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Session ID</th>
+                    <th>Session Start</th>
+                    <th>Game ID</th>
+                    <th>Game Start</th>
+                    <th>Team Kills</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ match.Session.id }}</td>
+                    <td>{{ match.Session.date_time }}</td>
+                    <td>{{ match.MatchID }}</td>
+                    <td>{{ match.date_time }}</td>
+                    <td>{{ match.TeamKills }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

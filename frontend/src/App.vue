@@ -11,8 +11,6 @@
   import ProgressView from "./components/ProgressView.vue";
   import RewardsView from "./components/RewardsView.vue";
   import UserSettingsView from "./components/UserSettingsView.vue";
-  import APIKeys from "./components/APIKeys.vue";
-  import SummonersView from "./components/SummonersView.vue";
 
   export default {
     name: "App",
@@ -51,22 +49,6 @@
                 name: "Settings",
                 path: "/user/settings",
                 component: UserSettingsView,
-                meta: {
-                  requiresAuth: true
-                }
-              },
-              {
-                name: "API Keys",
-                path: "/user/api_keys",
-                component: APIKeys,
-                meta: {
-                  requiresAuth: true
-                }
-              },
-              {
-                name: "Summoners",
-                path: "/user/summoners",
-                component: SummonersView,
                 meta: {
                   requiresAuth: true
                 }
