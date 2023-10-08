@@ -18,7 +18,9 @@ class LoginController(Controller):
         username = credentials["username"]
         password = credentials["password"]
         try:
-            ldap_client = LDAPClient(os.environ.get("LDAP_URL"))
+            ldap_url = os.environ.get("LDAP_URL")
+            assert ldap_url is not None
+            ldap_client = LDAPClient(ldap_url)
             ldap_client.check_user_login(username, password)
             result = ldap_client.get_user_groups(username)
             if not result:
