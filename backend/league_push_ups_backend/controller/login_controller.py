@@ -4,6 +4,7 @@ from flask_login.mixins import AnonymousUserMixin
 from typing import Union, Any
 from ..client.ldap import LDAPClient
 import ldap
+import os
 
 from . import Controller
 from ..models.database.user import User
@@ -17,7 +18,7 @@ class LoginController(Controller):
         username = credentials["username"]
         password = credentials["password"]
         try:
-            ldap_client = LDAPClient("ldap://192.168.1.2")
+            ldap_client = LDAPClient(os.environ.get("LDAP_URL"))
             ldap_client.check_user_login(username, password)
             result = ldap_client.get_user_groups(username)
             if not result:
