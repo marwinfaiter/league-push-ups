@@ -14,9 +14,9 @@
             <li>Right now only python3.11 is tested</li>
           </ul>
         </li>
-        <li>Install League Push Ups package
+        <li>Install/Upgrade League Push Ups package
           <ul>
-            <li>python3.11 -m pip install -i https://nexus.buddaphest.se/respository/pypi/simple -U league_push_ups</li>
+            <li>python3.11 -m pip install -i https://nexus.buddaphest.se/repository/pypi/simple -U league_push_ups</li>
           </ul>
         </li>
         <li>Create an API key after logging in with your username and password</li>
