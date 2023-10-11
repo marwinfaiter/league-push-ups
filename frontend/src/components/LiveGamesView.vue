@@ -1,13 +1,29 @@
 <template>
-  <div class="container">
-    <div v-for="game_id in Object.keys(this.events)" :key="game_id" class="card">
-      <div class="card-header">{{ game_id }}</div>
-      <div class="card-body">
-        <Line :id="game_id" :options="this.chart_options" :data="get_chart_data_by_game_id(game_id)"></Line>
-      </div>
+  <div class="container-fluid">
+    <div class="row" v-for="n in Object.keys(this.events).length" :key="n" style="margin-bottom: 10px;">
+      <template v-if="(n - 1) % 2 == 0">
+        <div class="col"></div>
+          <div :class="(n) in Object.keys(this.events) ? 'col-md-5':'col-md-8'">
+            <div class="card">
+              <div class="card-header">{{ Object.keys(this.events)[n - 1] }}</div>
+              <div class="card-body">
+                <Line :id="Object.keys(this.events)[n - 1]" :options="this.chart_options" :data="get_chart_data_by_game_id(Object.keys(this.events)[n - 1])"></Line>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-5" v-if="(n) in Object.keys(this.events)">
+            <div class="card">
+              <div class="card-header">{{ Object.keys(this.events)[n] }}</div>
+              <div class="card-body">
+                <Line :id="Object.keys(this.events)[n]" :options="this.chart_options" :data="get_chart_data_by_game_id(Object.keys(this.events)[n])"></Line>
+              </div>
+            </div>
+          </div>
+          <div class="col"></div>
+      </template>
     </div>
   </div>
-  </template>
+</template>
 
 <script>
 import io from "socket.io-client";
