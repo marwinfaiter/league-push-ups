@@ -22,6 +22,7 @@
         <li>Create an API key after logging in with your username and password</li>
         <li>Run program with python3.11 -m league_push_ups --username {username} --password {API key}</li>
       </ol>
+      <img style="border-radius: 5000px; margin: 0px" src="~@/assets/LPU.png">
     </div>
   </div>
 </template>
