@@ -1,5 +1,16 @@
 <template>
-    <div v-for="match in this.matches" :key="match.id" class="container">
+    <nav>
+      <ul class="pagination justify-content-center">
+        <li :class="{'page-item': true, 'disabled': this.current_page==0}">
+          <a @click="this.current_page--" role="button" class="page-link" tabindex="-1">Previous</a>
+        </li>
+        <li @click="this.current_page=page" :class="{'page-item': true, 'page-link': true, active: page == this.current_page}" role="button" v-for="(n, page) in Math.ceil(this.matches.length / 8)" :key="page">{{ n }}</li>
+        <li :class="{'page-item': true, 'disabled': this.current_page==parseInt(this.matches.length / 8)}">
+          <a @click="this.current_page++" role="button" class="page-link">Next</a>
+        </li>
+      </ul>
+    </nav>
+    <div v-for="match in this.matches.slice(this.current_page * 8, this.current_page * 8 + 8)" :key="match.id" class="container">
       <table class="table table-sm table-hover rounded" style="overflow: hidden">
         <thead role="button" data-bs-toggle="modal" :data-bs-target="'#match_modal_'+ match.id" class="table-light">
           <tr>
@@ -68,7 +79,8 @@ export default {
     name: 'HistoryView',
     data() {
         return {
-            matches: []
+            matches: [],
+            current_page: 0,
         };
     },
     async created() {
@@ -79,6 +91,9 @@ export default {
             this.matches = await this.backend_client
               .get("matches")
               .then(response => response.data.reverse());
+              for (let page in parseInt(this.matches.length / 8)) {
+                console.log(page)
+              }
         },
         format_number(number) {
           return parseFloat(number).toFixed(2)
