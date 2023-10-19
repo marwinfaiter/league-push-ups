@@ -16,7 +16,6 @@ setup(
         "flask-session",
         "Flask-RESTful",
         "flask-cors",
-        "simple-websocket",
         "python-ldap",
         "pymysql",
         "peewee",
