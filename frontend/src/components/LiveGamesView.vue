@@ -27,6 +27,7 @@
 
 <script>
 import io from "socket.io-client";
+import format_number from '@/javascript/functions';
 
 import {
   Chart as ChartJS,
@@ -86,6 +87,7 @@ export default {
       this.socket.emit("get_live_games");
     },
     methods: {
+      format_number,
       on_connect() {
         console.log("Connected to backend websocket")
       },
@@ -126,9 +128,6 @@ export default {
             }
           }),
         }
-      },
-      format_number(number) {
-        return parseFloat(number).toFixed(2);
       },
     }
 

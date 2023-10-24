@@ -64,7 +64,7 @@ class MatchPlayer(BaseModel):
             return self.MaxPushUps
 
         return round(min(
-            self.MinPushUps + (self.MinPushUps/2) / (self.kda * self.kill_participation),
+            self.MinPushUps + (self.MaxPushUps/2) / (self.kda * self.kill_participation),
             self.MaxPushUps
         ))
 

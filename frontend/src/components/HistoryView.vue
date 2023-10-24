@@ -74,6 +74,7 @@
 </template>
 
 <script>
+import format_number from '@/javascript/functions';
 
 export default {
     name: 'HistoryView',
@@ -87,6 +88,7 @@ export default {
         await this.getData();
     },
     methods: {
+        format_number,
         async getData() {
             this.matches = await this.backend_client
               .get("matches")
@@ -94,9 +96,6 @@ export default {
               for (let page in parseInt(this.matches.length / 8)) {
                 console.log(page)
               }
-        },
-        format_number(number) {
-          return parseFloat(number).toFixed(2)
         },
         check_allowed_to_edit(player) {
           if (this.store.state.login.groups.includes("leaguepushups-admins")) {
