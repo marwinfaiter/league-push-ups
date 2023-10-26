@@ -6,11 +6,14 @@ class CLIArgs(Tap):
     password: str = ""
     backend_url: str = "https://api.leaguepushups.buddaphest.se"
 
-    def parse_args(self, *args, **kwargs) -> "CLIArgs": # type: ignore[no-untyped-def,override]
-        cli_args = super().parse_args(*args, **kwargs)
-        if cli_args.username == "":
-            cli_args.username = input("Username: ").strip()
+    def get_username(self) -> str:
+        if self.username:
+            return self.username
+        self.username = input("Username: ").strip()
+        return self.username
 
-        if cli_args.password == "":
-            cli_args.password = getpass()
-        return cli_args
+    def get_password(self) -> str:
+        if self.password:
+            return self.password
+        self.password = getpass()
+        return self.password

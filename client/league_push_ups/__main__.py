@@ -6,6 +6,8 @@ from socketio import AsyncClient
 import requests.exceptions
 from aiohttp import ClientSession
 from pkg_resources import get_distribution
+from packaging.version import parse
+import sys
 
 from lcu_driver import Connector
 from lcu_driver.connection import Connection
@@ -164,19 +166,23 @@ class LeaguePushUps:
                     match
                 )
 
-    @staticmethod
-    async def print_versions() -> None:
-        print(f"League Push Ups client version: {__version__}")
-        backend_status = await LeaguePushUps.backend_client.get_status()
-        print(f"League Push Ups backend version: {backend_status['version']}")
-
 async def run() -> None:
-    cli_args = CLIArgs().parse_args()
     try:
         async with ClientSession() as session:
+            cli_args = CLIArgs().parse_args()
             LeaguePushUps.backend_client = BackendClient(cli_args.backend_url, session)
-            await LeaguePushUps.print_versions()
-            await LeaguePushUps.backend_client.login(cli_args.username, cli_args.password)
+
+            backend_status = await LeaguePushUps.backend_client.get_status()
+            print(f"League Push Ups client version: {__version__}")
+            print(f"League Push Ups backend version: {backend_status['version']}")
+            if parse(__version__) < parse(backend_status['version']):
+                print("\nYour client version is behind the backend.\n"
+                      "Please Upgrade your backend using this command:\n"
+                      f"{sys.executable} -m pip install"
+                      " -i https://nexus.buddaphest.se/repository/pypi/simple -U league_push_ups"
+                )
+
+            await LeaguePushUps.backend_client.login(cli_args.get_username(), cli_args.get_password())
             LeaguePushUps.session_id = await LeaguePushUps.backend_client.get_session_id()
             await connector.start()
     except (KeyboardInterrupt, asyncio.exceptions.CancelledError):
