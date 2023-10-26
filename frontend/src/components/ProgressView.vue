@@ -48,12 +48,9 @@
         </tr>
         <tr>
           <td colspan="7">
-            <div class="progress">
+            <div class="progress" style="position: relative">
               <div v-for="reward in this.rewards" :key="reward.id" :class="get_reward_classes(username, reward)" :style="get_reward_styles(reward)" role="button" data-bs-toggle="modal" :data-bs-target="`#reward_modal_${reward.id}`">
-                <div>
-                  <font-awesome-icon v-if="reward.name.split(',')[0] == 'fas'" :icon="reward.name.split(',')" size="xl"/>
-                  <template v-else>{{ reward.name }}</template>
-                </div>
+                <font-awesome-icon :icon="reward.name.split(',')" size="xl" style="margin-top: 4px"/>
               </div>
               <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" :style="{width: this.user_match_groupers[username].push_ups * 100 / this.rewards.slice(-1)[0]?.push_ups +'%'}" :aria-valuenow="this.user_match_groupers[username].push_ups * 100 / this.rewards.slice(-1)[0]?.push_ups" aria-valuemin="0" aria-valuemax="100">{{ this.user_match_groupers[username].push_ups }}</div>
             </div>
@@ -76,8 +73,7 @@
           <tbody>
             <tr>
               <td>
-                <font-awesome-icon v-if="reward.name.split(',')[0] == 'fas'" :icon="reward.name.split(',')" size="xl"/>
-                <template v-else>{{ reward.name }}</template>
+                <font-awesome-icon :icon="reward.name.split(',')" size="xl"/>
               </td>
               <td>{{ reward.description }}</td>
               <td>{{ reward.push_ups }}</td>
@@ -175,11 +171,11 @@ export default {
 
   .reward {
     position:absolute;
-    margin-top:-10px;
+    margin-top:-5px;
     z-index:1;
     opacity: 0.8;
-    height:40px;
-    width:40px;
+    height:25px;
+    width:25px;
     border-radius:25px;
 
     div {
