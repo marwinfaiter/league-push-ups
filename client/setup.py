@@ -50,7 +50,8 @@ setup(
         "requests",
         "attrs",
         "cattrs",
-        "python-socketio[asyncio_client]"
+        "python-socketio[asyncio_client]",
+        "packaging",
     ],
     extras_require={
         "test": [
