@@ -177,7 +177,7 @@ async def run() -> None:
             print(f"League Push Ups backend version: {backend_status['version']}")
             if parse(__version__) < parse(backend_status['version']):
                 print("\nYour client version is behind the backend.\n"
-                      "Please Upgrade your backend using this command:\n"
+                      "Please Upgrade your client using this command:\n"
                       f"{sys.executable} -m pip install"
                       " -i https://nexus.buddaphest.se/repository/pypi/simple -U league_push_ups"
                 )
