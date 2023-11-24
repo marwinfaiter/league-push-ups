@@ -114,6 +114,7 @@ export default {
             players[player.SummonerName]["assists"] = player.Assists;
             players[player.SummonerName]["kda"] = this.format_number(player.kda);
             players[player.SummonerName]["kill_participation"] = this.format_number(player.kill_participation * 100);
+            players[player.SummonerName]["active"] = player.Active
           }
         }
 
@@ -123,6 +124,7 @@ export default {
             return {
               data: players[summoner_name]["push_ups"],
               borderColor: this.colors[index],
+              borderDash: players[summoner_name]["active"] ? [0,0] : [5,10],
               tension: 0.3,
               label: `${summoner_name} (${players[summoner_name]["kills"]}/${players[summoner_name]["deaths"]}/${players[summoner_name]["assists"]}) (${players[summoner_name]["kda"]}/${players[summoner_name]["kill_participation"]}%)`
             }
