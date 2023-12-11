@@ -1,8 +1,9 @@
+from typing import Any, Optional
+
+import requests
 from attrs import define, field
 from cattrs import structure
-import requests
 from urllib3.exceptions import InsecureRequestWarning
-from typing import Any, Optional
 
 from ..models.event import Event
 from ..models.live_score import LiveScore
@@ -41,7 +42,7 @@ class GameClient:
         active_player = next(
             player
             for player in game_data["allPlayers"]
-            if player["summonerName"] == game_data["activePlayer"]["summonerName"]
+            if game_data["activePlayer"]["summonerName"].startswith(player["summonerName"])
         )
         for player in game_data["allPlayers"]:
             if player["team"] != active_player["team"]:

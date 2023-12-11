@@ -1,15 +1,17 @@
+import os
 from unittest import IsolatedAsyncioTestCase
-from mockito import expect, unstub, ANY, mock, verifyNoUnwantedInteractions
+
+from aiohttp import ClientSession
 from attrs import define
 from cattrs import structure
-from aiohttp import ClientSession
-
-from league_push_ups.__main__ import LeaguePushUps
+from league_push_ups.__main__ import LeaguePushUps, __version__
+from league_push_ups.client.backend import BackendClient
 from league_push_ups.models.end_of_game.eog_stats_block import EOGStatsBlock
 from league_push_ups.models.lobby import Lobby
-from league_push_ups.models.lobby.member import Member
 from league_push_ups.models.lobby.game_mode import GameMode
-from league_push_ups.client.backend import BackendClient
+from league_push_ups.models.lobby.member import Member
+from mockito import ANY, expect, mock, unstub, verifyNoUnwantedInteractions
+
 
 async def empty() -> None:
     pass
@@ -56,6 +58,9 @@ class TestLeaguePushUps(IsolatedAsyncioTestCase):
         example_game_end = structure(ExampleGameEnd().data, EOGStatsBlock)
         assert example_game_end.teams[0].stats is not None
         assert LeaguePushUps.game_id is None
+
+    async def test_version(self) -> None:
+        assert __version__ == f"0.0.{os.environ.get('BUILD_ID', '0')}"
 
 @define
 class ExampeMemberUpdate:
