@@ -1,34 +1,34 @@
-from typing import Optional
-from json import loads
-from cattrs import structure, unstructure
 import asyncio
-from socketio import AsyncClient
+import sys
+from importlib.metadata import version
+from json import loads
+from typing import Optional
+
 import requests.exceptions
 from aiohttp import ClientSession
-from pkg_resources import get_distribution
-from packaging.version import parse
-import sys
-
+from cattrs import structure, unstructure
 from lcu_driver import Connector
 from lcu_driver.connection import Connection
 from lcu_driver.events.responses import WebsocketEventResponse
+from packaging.version import parse
+from socketio import AsyncClient
 
+from .client.backend import BackendClient
+from .client.game import GameClient
+from .connector_start_patch import start
+from .models.cli_args import CLIArgs
+from .models.end_of_game.eog_stats_block import EOGStatsBlock
+from .models.event import Event
+from .models.event.event_name import EventName
 from .models.game_update import GameUpdate
 from .models.game_update.game_state import GameState
 from .models.game_update.game_type import GameType
 from .models.lobby import Lobby
 from .models.lobby.member import Member
-from .models.end_of_game.eog_stats_block import EOGStatsBlock
-from .models.cli_args import CLIArgs
 from .models.match import Match
-from .client.game import GameClient
-from .client.backend import BackendClient
-from .models.event import Event
-from .models.event.event_name import EventName
 from .run_ws_patch import run_ws
-from .connector_start_patch import start
 
-__version__ = get_distribution("league_push_ups").version
+__version__ = version("league_push_ups")
 
 Connection.run_ws = run_ws
 Connector.start = start
@@ -177,7 +177,7 @@ async def run() -> None:
             print(f"League Push Ups backend version: {backend_status['version']}")
             if parse(__version__) < parse(backend_status['version']):
                 print("\nYour client version is behind the backend.\n"
-                      "Please Upgrade your client using this command:\n"
+                      "Please upgrade your client using this command:\n"
                       f"{sys.executable} -m pip install"
                       " -i https://nexus.buddaphest.se/repository/pypi/simple -U league_push_ups"
                 )
