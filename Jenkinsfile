@@ -122,27 +122,6 @@ pipeline {
                                 HOME = "${env.WORKSPACE}"
                             }
                             stages {
-                                stage("Set package version") {
-                                    steps {
-                                        contentReplace(
-                                            configs: [
-                                                fileContentReplaceConfig(
-                                                    configs: [
-                                                        fileContentReplaceItemConfig(
-                                                        search: '(VERSION = )"0\\.0\\.0"',
-                                                        replace: '$1"0.0.${BUILD_ID}"',
-                                                        matchCount: 1,
-                                                        verbose: false,
-                                                        )
-                                                    ],
-                                                    fileEncoding: 'UTF-8',
-                                                    lineSeparator: 'Unix',
-                                                    filePath: 'client/setup.py'
-                                                )
-                                            ]
-                                        )
-                                    }
-                                }
                                 stage("Build wheel") {
                                     steps {
                                         dir("client") {
@@ -166,23 +145,6 @@ pipeline {
                                 branch 'main'
                             }
                             steps {
-                                contentReplace(
-                                    configs: [
-                                        fileContentReplaceConfig(
-                                            configs: [
-                                                fileContentReplaceItemConfig(
-                                                search: '(VERSION = )"0\\.0\\.0"',
-                                                replace: '$1"0.0.${BUILD_ID}"',
-                                                matchCount: 1,
-                                                verbose: false,
-                                                )
-                                            ],
-                                            fileEncoding: 'UTF-8',
-                                            lineSeparator: 'Unix',
-                                            filePath: 'backend/setup.py'
-                                        )
-                                    ]
-                                )
                                 script {
                                     docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {
 
