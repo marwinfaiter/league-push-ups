@@ -176,13 +176,14 @@ async def run() -> None:
             print(f"League Push Ups backend version: {backend_status['version']}")
             if parse(__version__) < parse(backend_status['version']):
                 print("\nYour client version is behind the backend.\n"
-                      "Please upgrade your client using this command:\n"
-                      f"{sys.executable} -m pip install"
-                      " -i https://nexus.buddaphest.se/repository/pypi/simple -U league_push_ups"
+                      "Please download the matching version:\n"
+                      "https://nexus.buddaphest.se/repository/raw/league-push-ups/"
+                      f"leaguepushups-{ backend_status['version'] }.exe"
                 )
 
             await LeaguePushUps.backend_client.login(cli_args.get_username(), cli_args.get_password())
             LeaguePushUps.session_id = await LeaguePushUps.backend_client.get_session_id()
+            print("Looking for client...")
             await connector.start()
     except (KeyboardInterrupt, asyncio.exceptions.CancelledError):
         print("Client stopped")

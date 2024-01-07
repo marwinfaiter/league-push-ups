@@ -10,18 +10,10 @@
         <hr class="my-4" />
         <ol style="text-align: left; margin-left:auto;margin-right: auto; width:80%">
           <li>
-            Download and install python from <a target="_blank" href="https://www.python.org/downloads/">here</a>
-            <ul>
-              <li>Right now only python3.11 is tested</li>
-            </ul>
-          </li>
-          <li>Install/Upgrade League Push Ups package
-            <ul>
-              <li>python3.11 -m pip install -i https://nexus.buddaphest.se/repository/pypi/simple -U league_push_ups</li>
-            </ul>
+            Download client matching backend version <a :href="'https://nexus.buddaphest.se/repository/raw/league-push-ups/leaguepushups-' + backend_version + '.exe'">here</a>
           </li>
           <li>Create an API key after logging in with your username and password</li>
-          <li>Run program with python3.11 -m league_push_ups --username {username} --password {API key}</li>
+          <li>Run program and login using your username and API key</li>
         </ol>
         <img style="border-radius: 5000px; margin: 0px" src="~@/assets/LPU.png">
       </div>
@@ -70,6 +62,7 @@ import format_number from '@/javascript/functions';
 export default {
     name: 'HomePageView',
     data() {
+      this.get_backend_status()
       return {
         min_push_ups: 10,
         max_push_ups: 50,
@@ -77,10 +70,16 @@ export default {
         deaths: 0,
         assists: 0,
         team_kills: 0,
+        backend_version: "N/A"
       }
     },
     methods: {
       format_number,
+      get_backend_status() {
+        this.backend_client.get_status().then(response => {
+          this.backend_version = response.data.version
+        })
+      }
     },
     computed: {
       push_ups() {
