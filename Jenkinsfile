@@ -4,7 +4,7 @@ pipeline {
         parallelsAlwaysFailFast()
     }
     environment {
-        TWINE_CREDENTIALS = credentials("nexus")
+        NEXUS_CREDENTIALS = credentials("nexus")
     }
     stages {
         stage("Clean workspace") {
@@ -96,6 +96,10 @@ pipeline {
                     }
                 }
                 stage("Build and publish artifacts") {
+                    when {
+                        branch "main"
+                        beforeAgent true
+                    }
                     stages {
                         stage("Wait for tests to finish") {
                             steps {
@@ -114,8 +118,7 @@ pipeline {
                         stage("Client") {
                             agent {
                                 docker {
-                                    image "python:3.11-slim"
-                                    reuseNode true
+                                    image "tobix/pywine:3.11"
                                 }
                             }
                             environment {
@@ -143,28 +146,27 @@ pipeline {
                                         )
                                     }
                                 }
-                                stage("Build wheel") {
+                                stage("Build exe") {
                                     steps {
                                         dir("client") {
-                                            sh "python setup.py bdist_wheel"
+                                            sh """
+                                                . /opt/mkuserwineprefix
+                                                script -qefc 'wine \$WINEPREFIX/drive_c/Python/python.exe -m pip install .' /dev/null
+                                                script -qefc 'wine \$WINEPREFIX/drive_c/Python/Scripts/pyinstaller.exe --onefile main.py -n leaguepushups-0.0.${BUILD_ID}' /dev/null
+                                            """
                                         }
                                     }
                                 }
-                                stage("Publish wheel") {
-                                    when {
-                                        branch 'main'
-                                    }
+                                stage("Upload exe") {
                                     steps {
-                                        sh "python -m pip install --user twine"
-                                        sh "python -m twine upload --repository-url https://nexus.buddaphest.se/repository/pypi-releases/ --u '${TWINE_CREDENTIALS_USR}' --p '${TWINE_CREDENTIALS_PSW}' client/dist/*"
+                                        dir("client") {
+                                            sh "curl -u '${NEXUS_CREDENTIALS_USR}:${NEXUS_CREDENTIALS_PSW}' --upload-file dist/leaguepushups-0.0.${BUILD_ID}.exe https://nexus.buddaphest.se/repository/raw-releases/league-push-ups/leaguepushups-0.0.${BUILD_ID}.exe"
+                                        }
                                     }
                                 }
                             }
                         }
                         stage("Backend") {
-                            when {
-                                branch 'main'
-                            }
                             steps {
                                 contentReplace(
                                     configs: [
@@ -195,9 +197,6 @@ pipeline {
                             }
                         }
                         stage("Frontend") {
-                            when {
-                                branch 'main'
-                            }
                             steps {
                                 script {
                                     docker.withRegistry('https://releases.docker.buddaphest.se', 'nexus') {

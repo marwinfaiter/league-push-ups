@@ -10,23 +10,22 @@ from cattrs import structure, unstructure
 from lcu_driver import Connector
 from lcu_driver.connection import Connection
 from lcu_driver.events.responses import WebsocketEventResponse
+from league_push_ups.client.backend import BackendClient
+from league_push_ups.client.game import GameClient
+from league_push_ups.connector_start_patch import start
+from league_push_ups.models.cli_args import CLIArgs
+from league_push_ups.models.end_of_game.eog_stats_block import EOGStatsBlock
+from league_push_ups.models.event import Event
+from league_push_ups.models.event.event_name import EventName
+from league_push_ups.models.game_update import GameUpdate
+from league_push_ups.models.game_update.game_state import GameState
+from league_push_ups.models.game_update.game_type import GameType
+from league_push_ups.models.lobby import Lobby
+from league_push_ups.models.lobby.member import Member
+from league_push_ups.models.match import Match
+from league_push_ups.run_ws_patch import run_ws
 from packaging.version import parse
 from socketio import AsyncClient
-
-from .client.backend import BackendClient
-from .client.game import GameClient
-from .connector_start_patch import start
-from .models.cli_args import CLIArgs
-from .models.end_of_game.eog_stats_block import EOGStatsBlock
-from .models.event import Event
-from .models.event.event_name import EventName
-from .models.game_update import GameUpdate
-from .models.game_update.game_state import GameState
-from .models.game_update.game_type import GameType
-from .models.lobby import Lobby
-from .models.lobby.member import Member
-from .models.match import Match
-from .run_ws_patch import run_ws
 
 __version__ = version("league_push_ups")
 

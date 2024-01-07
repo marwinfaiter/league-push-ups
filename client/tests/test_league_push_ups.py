@@ -1,15 +1,16 @@
 from unittest import IsolatedAsyncioTestCase
-from mockito import expect, unstub, ANY, mock, verifyNoUnwantedInteractions
+
+from aiohttp import ClientSession
 from attrs import define
 from cattrs import structure
-from aiohttp import ClientSession
-
-from league_push_ups.__main__ import LeaguePushUps
+from league_push_ups.client.backend import BackendClient
 from league_push_ups.models.end_of_game.eog_stats_block import EOGStatsBlock
 from league_push_ups.models.lobby import Lobby
-from league_push_ups.models.lobby.member import Member
 from league_push_ups.models.lobby.game_mode import GameMode
-from league_push_ups.client.backend import BackendClient
+from league_push_ups.models.lobby.member import Member
+from main import LeaguePushUps
+from mockito import ANY, expect, mock, unstub, verifyNoUnwantedInteractions
+
 
 async def empty() -> None:
     pass
